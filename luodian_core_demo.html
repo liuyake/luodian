@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>螺光工坊 - AI非遗螺钿互动创作平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #d4af37 0%, #ffd700 50%, #d4af37 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .header p {
+            color: #2d3436;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* AI导览区 */
+        .ai-chat {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        #chatInput:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .voice-btn, .send-btn {
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .voice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        /* 纹样选择 */
+        .pattern-selector, .base-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .pattern-btn, .base-btn {
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .pattern-btn.active, .base-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+
+        .pattern-btn:hover, .base-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 螺片材料库 */
+        .shell-library {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .shell-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shell-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .shell-item.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .shell-item span {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            bottom: 2px;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn.rotate-left {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .action-btn.rotate-right {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .action-btn.undo {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .action-btn.clear {
+            background: linear-gradient(135deg, #434343 0%, #000000 100%);
+        }
+
+        .action-btn.auto {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            grid-column: span 2;
+        }
+
+        .action-btn.story {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #1a1a2e;
+            grid-column: span 2;
+        }
+
+        /* 主画布区域 */
+        .canvas-area {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #canvas {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            cursor: crosshair;
+        }
+
+        .canvas-info {
+            text-align: center;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .selected-shell-info {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-top: 15px;
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        /* 作品故事弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .story-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .story-item label {
+            color: #ffd700;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .story-item .value {
+            color: #fff;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .story-item.keywords .value {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .keyword-tag {
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #1a1a2e;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+        }
+
+        .close-modal {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .canvas-area {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .shell-library {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>螺光工坊 - AI非遗螺钿互动创作平台</h1>
+        <p>传承千年技艺，点亮创意之光</p>
+    </div>
+
+    <div class="main-container">
+        <!-- 左侧面板 -->
+        <div class="sidebar">
+            <!-- AI非遗导览 -->
+            <div class="panel">
+                <div class="panel-title">AI非遗导览</div>
+                <div class="ai-chat">
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chatInput" placeholder="输入您的问题...">
+                        <button class="voice-btn" id="voiceBtn">🎤</button>
+                        <button class="send-btn" id="sendBtn">生成讲解</button>
+                    </div>
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="child">10岁小学生</button>
+                        <button class="mode-btn" data-mode="visitor">非遗馆游客</button>
+                        <button class="mode-btn" data-mode="teacher">美育老师</button>
+                    </div>
+                    <div class="chat-output" id="chatOutput">
+                        您好！我是螺钿小助手，请问您想了解什么关于螺钿的知识？
+                    </div>
+                </div>
+            </div>
+
+            <!-- 纹样选择 -->
+            <div class="panel">
+                <div class="panel-title">纹样类型</div>
+                <div class="pattern-selector">
+                    <button class="pattern-btn active" data-pattern="lotus">荷花锦鲤</button>
+                    <button class="pattern-btn" data-pattern="phoenix">玉鸟牡丹</button>
+                    <button class="pattern-btn" data-pattern="landscape">月下山河</button>
+                    <button class="pattern-btn" data-pattern="flow">自由流光</button>
+                </div>
+            </div>
+
+            <!-- 底板选择 -->
+            <div class="panel">
+                <div class="panel-title">底板类型</div>
+                <div class="base-selector">
+                    <button class="base-btn active" data-base="round">圆形漆盘</button>
+                    <button class="base-btn" data-base="fan">团扇</button>
+                    <button class="base-btn" data-base="box">首饰盒面</button>
+                    <button class="base-btn" data-base="bookmark">书签</button>
+                </div>
+            </div>
+
+            <!-- 螺片材料库 -->
+            <div class="panel">
+                <div class="panel-title">螺片材料库</div>
+                <div class="shell-library" id="shellLibrary">
+                    <!-- 动态生成螺片 -->
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="panel">
+                <div class="panel-title">镶嵌操作</div>
+                <div class="action-buttons">
+                    <button class="action-btn rotate-left" id="rotateLeftBtn">← 左转15°</button>
+                    <button class="action-btn rotate-right" id="rotateRightBtn">右转15° →</button>
+                    <button class="action-btn undo" id="undoBtn">撤销</button>
+                    <button class="action-btn clear" id="clearBtn">清空</button>
+                    <button class="action-btn auto" id="autoBtn">✨ AI自动镶嵌</button>
+                    <button class="action-btn story" id="storyBtn">📖 生成作品故事</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧画布区域 -->
+        <div class="canvas-area">
+            <svg id="canvas" viewBox="0 0 600 600">
+                <!-- 动态绘制内容 -->
+            </svg>
+            <div class="selected-shell-info" id="selectedShellInfo">
+                请从材料库选择螺片，然后在画布上点击放置
+            </div>
+            <div class="canvas-info">
+                💡 提示：滚轮可微调旋转角度，拖拽移动已放置的螺片
+            </div>
+        </div>
+    </div>
+
+    <!-- 作品故事弹窗 -->
+    <div class="modal-overlay" id="storyModal">
+        <div class="modal-content">
+            <div class="modal-title">📖 我的作品故事</div>
+            <div class="story-item">
+                <label>作品名称</label>
+                <div class="value" id="storyName"></div>
+            </div>
+            <div class="story-item">
+                <label>创作者昵称</label>
+                <div class="value" id="storyAuthor"></div>
+            </div>
+            <div class="story-item keywords">
+                <label>主题关键词</label>
+                <div class="value" id="storyKeywords"></div>
+            </div>
+            <div class="story-item">
+                <label>作品寓意</label>
+                <div class="value" id="storyMeaning"></div>
+            </div>
+            <div class="story-item">
+                <label>非遗知识卡</label>
+                <div class="value" id="storyKnowledge"></div>
+            </div>
+            <div class="story-item">
+                <label>作品介绍</label>
+                <div class="value" id="storyIntro"></div>
+            </div>
+            <button class="close-modal" id="closeModal">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // 螺片材料数据
+        const shellTypes = [
+            { id: 'moon-white', name: '月白贝', colors: ['#f5f5f5', '#e0e0e0', '#ffffff', '#d4d4d4'] },
+            { id: 'peach-pink', name: '桃粉贝', colors: ['#ffb6c1', '#ffc0cb', '#ff69b4', '#ff8fab'] },
+            { id: 'cyan-blue', name: '青蓝贝', colors: ['#4169e1', '#6495ed', '#00ced1', '#87ceeb'] },
+            { id: 'peacock', name: '孔雀贝', colors: ['#00bfff', '#00ced1', '#20b2aa', '#7b68ee'] },
+            { id: 'purple-sunset', name: '紫霞贝', colors: ['#9370db', '#ba55d3', '#da70d6', '#ee82ee'] },
+            { id: 'gold-sand', name: '金砂贝', colors: ['#ffd700', '#daa520', '#f0e68c', '#ffec8b'] },
+            { id: 'sea-fog', name: '海雾贝', colors: ['#b0c4de', '#e6e6fa', '#d3d3d3', '#f0f8ff'] },
+            { id: 'dawn', name: '晨曦贝', colors: ['#ff7f50', '#ffa500', '#ffb347', '#ffdab9'] }
+        ];
+
+        // 螺片形状类型
+        const shellShapes = ['petal', 'oval', 'leaf', 'feather', 'fragment', 'fishscale'];
+
+        // AI问答数据
+        const aiAnswers = {
+            '什么是螺钿': {
+                child: '螺钿就是用漂亮的贝壳做装饰的工艺哦！工匠们把贝壳切成各种形状，贴在木头、漆器上，做成好看的图案，在光下还会闪闪发光呢！',
+                visitor: '螺钿是中国传统装饰工艺，将贝壳薄片镶嵌于器物表面形成精美图案。这项技艺起源于商周，历经千年传承，被誉为"指尖上的彩虹"。',
+                teacher: '螺钿工艺是一种将贝壳作为镶嵌材料的传统装饰技法。其特点在于利用贝壳天然的珠光色彩和纹理，通过切割、打磨、镶嵌等工序，在器物表面形成华丽的装饰效果，具有极高的审美价值和文化内涵。'
+            },
+            '贝壳为什么会发光': {
+                child: '贝壳里面有很多层薄薄的东西，像一层层小镜子！光线照进去会反射和折射，就像彩虹一样闪闪发光啦！',
+                visitor: '贝壳的珍珠层含有文石晶体结构，光线在这些微小晶体间发生反射、折射和干涉，形成虹彩效果，这就是我们看到的珠光宝气。',
+                teacher: '贝壳的光泽源于其珍珠层的特殊结构。珍珠层由无数文石薄片平行排列而成，当光线照射时，会发生多次反射和干涉，产生绚丽的珠光效应。这种结构色是螺钿工艺美感的核心来源。'
+            },
+            '螺钿是怎么制作的': {
+                child: '先要挑选漂亮的贝壳，然后把它切成薄片，再剪成想要的形状，最后用胶水贴在盘子或盒子上，打磨光滑就好啦！',
+                visitor: '螺钿制作工序复杂：选材→开片→切割造型→打磨抛光→镶嵌→上漆→推光。每一步都需要匠人的细心与耐心，一件作品往往耗时数月。',
+                teacher: '螺钿制作包含选材开片、设计放样、切割造型、打磨抛光、镶嵌粘合、髹漆推光等多道工序。其中开片技术要求极高，需将贝壳切成0.1-0.3毫米的薄片，考验匠人手上功夫。'
+            },
+            '螺钿可以做成什么文创': {
+                child: '可以做漂亮的首饰盒、扇子、书签，还有好看的挂饰！都闪着彩虹的光芒，特别漂亮！',
+                visitor: '螺钿文创产品丰富多样，包括首饰盒、屏风、挂件、书签、茶具等。现代设计师还将其与现代生活结合，开发出灯具、手机壳等新潮产品。',
+                teacher: '螺钿文创可分为传统器物类（首饰盒、屏风、漆盘）和现代创意类（书签、挂件、文具）。在美育教学中，可引导学生认识传统工艺与现代设计的结合点，培养创新思维。'
+            },
+            '为什么螺钿适合儿童美育': {
+                child: '因为贝壳颜色很漂亮，像彩虹一样！小朋友可以用它拼出各种图案，发挥想象力，还能了解古代的手工艺呢！',
+                visitor: '螺钿工艺色彩丰富、材料安全，适合儿童接触传统工艺。通过动手镶嵌，既能培养审美能力，又能了解非遗文化，是很好的美育载体。',
+                teacher: '螺钿适合儿童美育有多重原因：材料天然安全、色彩绚丽吸引儿童、操作过程能锻炼精细动作和空间思维，同时能让孩子直观感受传统工艺之美，培养文化认同感。'
+            }
+        };
+
+        // 默认回答
+        const defaultAnswers = {
+            child: '哇，这个问题好有趣！螺钿是很神奇的传统工艺，就像用贝壳变魔术一样！你可以问问我"什么是螺钿"、"贝壳为什么会发光"这些问题哦！',
+            visitor: '感谢您的提问！螺钿是中国非物质文化遗产中的瑰宝。如果您想深入了解，可以问我关于螺钿的定义、制作工艺、文创产品等方面的问题。',
+            teacher: '您的问题很有深度！螺钿作为传统工艺，蕴含着丰富的文化内涵和艺术价值。建议从"什么是螺钿"开始了解，逐步深入其工艺特点和美育价值。'
+        };
+
+        // 全局状态
+        let currentMode = 'child';
+        let selectedShell = null;
+        let placedShells = [];
+        let selectedShellId = null;
+        let currentPattern = 'lotus';
+        let currentBase = 'round';
+        let historyStack = [];
+
+        // DOM元素
+        const chatInput = document.getElementById('chatInput');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatOutput = document.getElementById('chatOutput');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const patternButtons = document.querySelectorAll('.pattern-btn');
+        const baseButtons = document.querySelectorAll('.base-btn');
+        const shellLibrary = document.getElementById('shellLibrary');
+        const canvas = document.getElementById('canvas');
+        const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+        const rotateRightBtn = document.getElementById('rotateRightBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const autoBtn = document.getElementById('autoBtn');
+        const storyBtn = document.getElementById('storyBtn');
+        const selectedShellInfo = document.getElementById('selectedShellInfo');
+        const storyModal = document.getElementById('storyModal');
+        const closeModal = document.getElementById('closeModal');
+
+        // 初始化螺片材料库
+        function initShellLibrary() {
+            shellTypes.forEach(shell => {
+                const shellItem = document.createElement('div');
+                shellItem.className = 'shell-item';
+                shellItem.dataset.shellId = shell.id;
+                shellItem.innerHTML = `
+                    <svg viewBox="0 0 60 60" style="width:100%;height:100%">
+                        <defs>
+                            <linearGradient id="grad-${shell.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:${shell.colors[0]};stop-opacity:0.9" />
+                                <stop offset="50%" style="stop-color:${shell.colors[1]};stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:${shell.colors[2]};stop-opacity:0.8" />
+                            </linearGradient>
+                            <filter id="shadow-${shell.id}" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)" />
+                            </filter>
+                            <linearGradient id="highlight-${shell.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:white;stop-opacity:0.4" />
+                                <stop offset="100%" style="stop-color:white;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        <path d="${generateShellShape('petal')}" fill="url(#grad-${shell.id})" filter="url(#shadow-${shell.id})" />
+                        <path d="${generateShellShape('petal')}" fill="url(#highlight-${shell.id})" />
+                        <ellipse cx="20" cy="20" rx="8" ry="5" fill="white" opacity="0.3" transform="rotate(-30 20 20)" />
+                    </svg>
+                    <span>${shell.name}</span>
+                `;
+                shellItem.addEventListener('click', () => selectShell(shell.id));
+                shellLibrary.appendChild(shellItem);
+            });
+        }
+
+        // 生成螺片形状路径
+        function generateShellShape(shapeType) {
+            switch(shapeType) {
+                case 'petal':
+                    return 'M30 5 Q50 20 55 30 Q50 40 30 55 Q10 40 5 30 Q10 20 30 5';
+                case 'oval':
+                    return 'M30 10 Q50 10 55 30 Q50 50 30 50 Q10 50 5 30 Q10 10 30 10';
+                case 'leaf':
+                    return 'M30 5 Q50 15 55 30 Q50 45 30 55 Q10 45 5 30 Q10 15 30 5';
+                case 'feather':
+                    return 'M30 5 Q45 20 50 30 Q45 40 30 55 Q15 40 10 30 Q15 20 30 5';
+                case 'fragment':
+                    return 'M15 15 Q35 10 50 20 Q55 35 45 50 Q25 55 10 40 Q5 25 15 15';
+                case 'fishscale':
+                    return 'M15 20 Q30 10 45 20 Q55 30 45 40 Q30 50 15 40 Q5 30 15 20';
+                default:
+                    return 'M30 10 Q50 10 55 30 Q50 50 30 50 Q10 50 5 30 Q10 10 30 10';
+            }
+        }
+
+        // 选择螺片
+        function selectShell(shellId) {
+            // 取消其他选中
+            document.querySelectorAll('.shell-item').forEach(item => item.classList.remove('selected'));
+            // 选中当前螺片
+            document.querySelector(`[data-shell-id="${shellId}"]`).classList.add('selected');
+            selectedShell = shellTypes.find(s => s.id === shellId);
+            selectedShellInfo.textContent = `已选择：${selectedShell.name} - 点击画布放置`;
+        }
+
+        // 绘制底板
+        function drawBase() {
+            const svg = canvas;
+            svg.innerHTML = '';
+            
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            
+            // 漆色渐变
+            const bgGrad = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+            bgGrad.setAttribute('id', 'bgGrad');
+            bgGrad.setAttribute('cx', '300');
+            bgGrad.setAttribute('cy', '300');
+            bgGrad.setAttribute('r', '280');
+            const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('stop-color', '#1a1a2e');
+            const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '100%');
+            stop2.setAttribute('stop-color', '#0d0d1a');
+            bgGrad.appendChild(stop1);
+            bgGrad.appendChild(stop2);
+            defs.appendChild(bgGrad);
+
+            // 金色边框渐变
+            const goldGrad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            goldGrad.setAttribute('id', 'goldGrad');
+            goldGrad.setAttribute('x1', '0%');
+            goldGrad.setAttribute('y1', '0%');
+            goldGrad.setAttribute('x2', '100%');
+            goldGrad.setAttribute('y2', '100%');
+            const gStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            gStop1.setAttribute('offset', '0%');
+            gStop1.setAttribute('stop-color', '#ffd700');
+            const gStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            gStop2.setAttribute('offset', '50%');
+            gStop2.setAttribute('stop-color', '#ffec8b');
+            const gStop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            gStop3.setAttribute('offset', '100%');
+            gStop3.setAttribute('stop-color', '#daa520');
+            goldGrad.appendChild(gStop1);
+            goldGrad.appendChild(gStop2);
+            goldGrad.appendChild(gStop3);
+            defs.appendChild(goldGrad);
+
+            // 高光渐变
+            const highlightGrad = document.createElementNS('http://www.w3.org/2000/svg', 'radialGradient');
+            highlightGrad.setAttribute('id', 'highlightGrad');
+            highlightGrad.setAttribute('cx', '200');
+            highlightGrad.setAttribute('cy', '180');
+            highlightGrad.setAttribute('r', '150');
+            const hStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            hStop1.setAttribute('offset', '0%');
+            hStop1.setAttribute('stop-color', 'white');
+            hStop1.setAttribute('stop-opacity', '0.1');
+            const hStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            hStop2.setAttribute('offset', '100%');
+            hStop2.setAttribute('stop-color', 'white');
+            hStop2.setAttribute('stop-opacity', '0');
+            highlightGrad.appendChild(hStop1);
+            highlightGrad.appendChild(hStop2);
+            defs.appendChild(highlightGrad);
+
+            svg.appendChild(defs);
+
+            // 根据底板类型绘制
+            if (currentBase === 'round') {
+                // 圆形漆盘
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', '300');
+                circle.setAttribute('cy', '300');
+                circle.setAttribute('r', '280');
+                circle.setAttribute('fill', 'url(#bgGrad)');
+                svg.appendChild(circle);
+
+                const border = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                border.setAttribute('cx', '300');
+                border.setAttribute('cy', '300');
+                border.setAttribute('r', '280');
+                border.setAttribute('fill', 'none');
+                border.setAttribute('stroke', 'url(#goldGrad)');
+                border.setAttribute('stroke-width', '8');
+                svg.appendChild(border);
+
+                const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                highlight.setAttribute('cx', '300');
+                highlight.setAttribute('cy', '300');
+                highlight.setAttribute('r', '275');
+                highlight.setAttribute('fill', 'url(#highlightGrad)');
+                svg.appendChild(highlight);
+            } else if (currentBase === 'fan') {
+                // 团扇
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M300 20 A280 280 0 0 1 300 580 A140 280 0 0 0 300 20');
+                path.setAttribute('fill', 'url(#bgGrad)');
+                svg.appendChild(path);
+
+                const border = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                border.setAttribute('d', 'M300 20 A280 280 0 0 1 300 580 A140 280 0 0 0 300 20');
+                border.setAttribute('fill', 'none');
+                border.setAttribute('stroke', 'url(#goldGrad)');
+                border.setAttribute('stroke-width', '6');
+                svg.appendChild(border);
+
+                const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                highlight.setAttribute('d', 'M300 30 A270 270 0 0 1 300 570 A135 270 0 0 0 300 30');
+                highlight.setAttribute('fill', 'url(#highlightGrad)');
+                svg.appendChild(highlight);
+
+                // 扇柄
+                const handle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                handle.setAttribute('x1', '300');
+                handle.setAttribute('y1', '580');
+                handle.setAttribute('x2', '300');
+                handle.setAttribute('y2', '650');
+                handle.setAttribute('stroke', 'url(#goldGrad)');
+                handle.setAttribute('stroke-width', '8');
+                handle.setAttribute('stroke-linecap', 'round');
+                svg.appendChild(handle);
+            } else if (currentBase === 'box') {
+                // 首饰盒面（方形带圆角）
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', '60');
+                rect.setAttribute('y', '60');
+                rect.setAttribute('width', '480');
+                rect.setAttribute('height', '480');
+                rect.setAttribute('rx', '30');
+                rect.setAttribute('fill', 'url(#bgGrad)');
+                svg.appendChild(rect);
+
+                const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                border.setAttribute('x', '60');
+                border.setAttribute('y', '60');
+                border.setAttribute('width', '480');
+                border.setAttribute('height', '480');
+                border.setAttribute('rx', '30');
+                border.setAttribute('fill', 'none');
+                border.setAttribute('stroke', 'url(#goldGrad)');
+                border.setAttribute('stroke-width', '8');
+                svg.appendChild(border);
+
+                const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                highlight.setAttribute('x', '70');
+                highlight.setAttribute('y', '70');
+                highlight.setAttribute('width', '460');
+                highlight.setAttribute('height', '460');
+                highlight.setAttribute('rx', '25');
+                highlight.setAttribute('fill', 'url(#highlightGrad)');
+                svg.appendChild(highlight);
+            } else if (currentBase === 'bookmark') {
+                // 书签
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', '200');
+                rect.setAttribute('y', '50');
+                rect.setAttribute('width', '200');
+                rect.setAttribute('height', '500');
+                rect.setAttribute('rx', '10');
+                rect.setAttribute('fill', 'url(#bgGrad)');
+                svg.appendChild(rect);
+
+                const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                border.setAttribute('x', '200');
+                border.setAttribute('y', '50');
+                border.setAttribute('width', '200');
+                border.setAttribute('height', '500');
+                border.setAttribute('rx', '10');
+                border.setAttribute('fill', 'none');
+                border.setAttribute('stroke', 'url(#goldGrad)');
+                border.setAttribute('stroke-width', '4');
+                svg.appendChild(border);
+
+                const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                highlight.setAttribute('x', '210');
+                highlight.setAttribute('y', '60');
+                highlight.setAttribute('width', '180');
+                highlight.setAttribute('height', '480');
+                highlight.setAttribute('rx', '5');
+                highlight.setAttribute('fill', 'url(#highlightGrad)');
+                svg.appendChild(highlight);
+
+                // 顶部圆孔
+                const hole = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                hole.setAttribute('cx', '300');
+                hole.setAttribute('cy', '65');
+                hole.setAttribute('r', '10');
+                hole.setAttribute('fill', 'none');
+                hole.setAttribute('stroke', 'url(#goldGrad)');
+                hole.setAttribute('stroke-width', '2');
+                svg.appendChild(hole);
+            }
+
+            // 重新绘制已放置的螺片
+            redrawShells();
+        }
+
+        // 重新绘制螺片
+        function redrawShells() {
+            placedShells.forEach(shell => {
+                drawShell(shell);
+            });
+        }
+
+        // 绘制单个螺片
+        function drawShell(shellData) {
+            const svg = canvas;
+            const shellType = shellTypes.find(s => s.id === shellData.shellId);
+            const shape = generateShellShape(shellData.shape);
+            
+            // 创建螺片组
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            group.setAttribute('data-shell-index', shellData.index);
+            group.setAttribute('transform', `translate(${shellData.x}, ${shellData.y}) rotate(${shellData.rotation})`);
+            group.style.cursor = 'pointer';
+            
+            if (selectedShellId === shellData.index) {
+                group.setAttribute('style', 'cursor:pointer;filter:drop-shadow(0 0 8px #ffd700)');
+            }
+
+            // 创建渐变定义
+            const defs = svg.querySelector('defs');
+            const gradId = `shellGrad-${shellData.index}`;
+            const shadowId = `shellShadow-${shellData.index}`;
+            const highlightId = `shellHighlight-${shellData.index}`;
+
+            // 珠光渐变
+            const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            grad.setAttribute('id', gradId);
+            grad.setAttribute('x1', '0%');
+            grad.setAttribute('y1', '0%');
+            grad.setAttribute('x2', '100%');
+            grad.setAttribute('y2', '100%');
+            shellType.colors.forEach((color, i) => {
+                const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                stop.setAttribute('offset', `${i * 50}%`);
+                stop.setAttribute('stop-color', color);
+                stop.setAttribute('stop-opacity', i === 1 ? 1 : 0.8);
+                grad.appendChild(stop);
+            });
+            defs.appendChild(grad);
+
+            // 阴影滤镜
+            const shadow = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+            shadow.setAttribute('id', shadowId);
+            shadow.setAttribute('x', '-20%');
+            shadow.setAttribute('y', '-20%');
+            shadow.setAttribute('width', '140%');
+            shadow.setAttribute('height', '140%');
+            const feShadow = document.createElementNS('http://www.w3.org/2000/svg', 'feDropShadow');
+            feShadow.setAttribute('dx', '2');
+            feShadow.setAttribute('dy', '2');
+            feShadow.setAttribute('stdDeviation', '2');
+            feShadow.setAttribute('flood-color', 'rgba(0,0,0,0.4)');
+            shadow.appendChild(feShadow);
+            defs.appendChild(shadow);
+
+            // 高光渐变
+            const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            highlight.setAttribute('id', highlightId);
+            highlight.setAttribute('x1', '0%');
+            highlight.setAttribute('y1', '0%');
+            highlight.setAttribute('x2', '100%');
+            highlight.setAttribute('y2', '100%');
+            const hStop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            hStop1.setAttribute('offset', '0%');
+            hStop1.setAttribute('stop-color', 'white');
+            hStop1.setAttribute('stop-opacity', '0.5');
+            const hStop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            hStop2.setAttribute('offset', '100%');
+            hStop2.setAttribute('stop-color', 'white');
+            hStop2.setAttribute('stop-opacity', '0');
+            highlight.appendChild(hStop1);
+            highlight.appendChild(hStop2);
+            defs.appendChild(highlight);
+
+            // 绘制螺片主体
+            const shellPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            shellPath.setAttribute('d', shape);
+            shellPath.setAttribute('fill', `url(#${gradId})`);
+            shellPath.setAttribute('filter', `url(#${shadowId})`);
+            group.appendChild(shellPath);
+
+            // 绘制高光
+            const highlightPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            highlightPath.setAttribute('d', shape);
+            highlightPath.setAttribute('fill', `url(#${highlightId})`);
+            group.appendChild(highlightPath);
+
+            // 绘制边缘反光
+            const edgeGlow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            edgeGlow.setAttribute('d', shape);
+            edgeGlow.setAttribute('fill', 'none');
+            edgeGlow.setAttribute('stroke', 'white');
+            edgeGlow.setAttribute('stroke-width', '0.5');
+            edgeGlow.setAttribute('opacity', '0.3');
+            group.appendChild(edgeGlow);
+
+            // 添加点击事件
+            group.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectPlacedShell(shellData.index);
+            });
+
+            // 添加拖拽事件
+            let isDragging = false;
+            let startX, startY;
+
+            group.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                if (selectedShellId !== shellData.index) {
+                    selectPlacedShell(shellData.index);
+                }
+                isDragging = true;
+                const rect = svg.getBoundingClientRect();
+                startX = e.clientX - rect.left - shellData.x;
+                startY = e.clientY - rect.top - shellData.y;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || selectedShellId !== shellData.index) return;
+                const rect = svg.getBoundingClientRect();
+                const newX = e.clientX - rect.left - startX;
+                const newY = e.clientY - rect.top - startY;
+                moveShell(shellData.index, newX, newY);
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            svg.appendChild(group);
+        }
+
+        // 选择已放置的螺片
+        function selectPlacedShell(index) {
+            // 清除之前选中的样式
+            const groups = canvas.querySelectorAll('g[data-shell-index]');
+            groups.forEach(g => {
+                g.setAttribute('style', 'cursor:pointer');
+            });
+
+            selectedShellId = index;
+            
+            // 设置新选中的样式
+            const selectedGroup = canvas.querySelector(`g[data-shell-index="${index}"]`);
+            if (selectedGroup) {
+                selectedGroup.setAttribute('style', 'cursor:pointer;filter:drop-shadow(0 0 8px #ffd700)');
+            }
+
+            const shell = placedShells.find(s => s.index === index);
+            if (shell) {
+                const shellType = shellTypes.find(t => t.id === shell.shellId);
+                selectedShellInfo.textContent = `已选中：${shellType.name} - 可拖拽移动或旋转`;
+            }
+        }
+
+        // 移动螺片
+        function moveShell(index, x, y) {
+            // 限制在画布范围内
+            const minX = 30, maxX = 570, minY = 30, maxY = 570;
+            x = Math.max(minX, Math.min(maxX, x));
+            y = Math.max(minY, Math.min(maxY, y));
+
+            const shell = placedShells.find(s => s.index === index);
+            if (shell) {
+                shell.x = x;
+                shell.y = y;
+                const group = canvas.querySelector(`g[data-shell-index="${index}"]`);
+                if (group) {
+                    group.setAttribute('transform', `translate(${x}, ${y}) rotate(${shell.rotation})`);
+                }
+            }
+        }
+
+        // 旋转螺片
+        function rotateShell(index, angle) {
+            const shell = placedShells.find(s => s.index === index);
+            if (shell) {
+                shell.rotation = (shell.rotation + angle) % 360;
+                const group = canvas.querySelector(`g[data-shell-index="${index}"]`);
+                if (group) {
+                    group.setAttribute('transform', `translate(${shell.x}, ${shell.y}) rotate(${shell.rotation})`);
+                }
+            }
+        }
+
+        // 添加螺片到画布
+        function addShell(x, y) {
+            if (!selectedShell) return;
+
+            const shape = shellShapes[Math.floor(Math.random() * shellShapes.length)];
+            const newShell = {
+                index: placedShells.length,
+                shellId: selectedShell.id,
+                shape: shape,
+                x: x,
+                y: y,
+                rotation: Math.floor(Math.random() * 360)
+            };
+
+            // 保存历史记录
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            if (historyStack.length > 50) historyStack.shift();
+
+            placedShells.push(newShell);
+            drawShell(newShell);
+            selectPlacedShell(newShell.index);
+        }
+
+        // 撤销操作
+        function undo() {
+            if (historyStack.length === 0) return;
+            placedShells = JSON.parse(JSON.stringify(historyStack.pop()));
+            drawBase();
+            selectedShellId = null;
+            selectedShellInfo.textContent = '已撤销 - 请选择螺片或继续创作';
+        }
+
+        // 清空画布
+        function clearCanvas() {
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            placedShells = [];
+            selectedShellId = null;
+            drawBase();
+            selectedShellInfo.textContent = '已清空 - 请从材料库选择螺片开始创作';
+        }
+
+        // AI自动镶嵌 - 荷花锦鲤
+        function autoLotus() {
+            // 保存历史
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            
+            // 清除现有螺片
+            placedShells = [];
+            selectedShellId = null;
+
+            let index = 0;
+
+            // 绘制荷花花瓣
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 60;
+                placedShells.push({
+                    index: index++,
+                    shellId: 'peach-pink',
+                    shape: 'petal',
+                    x: 300 + Math.cos(angle) * radius,
+                    y: 300 + Math.sin(angle) * radius,
+                    rotation: (angle * 180 / Math.PI) + 90
+                });
+            }
+
+            // 绘制内层花瓣
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 + 0.5;
+                const radius = 35;
+                placedShells.push({
+                    index: index++,
+                    shellId: 'moon-white',
+                    shape: 'petal',
+                    x: 300 + Math.cos(angle) * radius,
+                    y: 300 + Math.sin(angle) * radius,
+                    rotation: (angle * 180 / Math.PI) + 90
+                });
+            }
+
+            // 绘制荷叶
+            const leafPositions = [
+                { x: 180, y: 200, scale: 1.2 },
+                { x: 420, y: 220, scale: 1 },
+                { x: 400, y: 400, scale: 1.1 },
+                { x: 160, y: 420, scale: 0.9 }
+            ];
+
+            leafPositions.forEach(pos => {
+                for (let i = 0; i < 4; i++) {
+                    placedShells.push({
+                        index: index++,
+                        shellId: 'cyan-blue',
+                        shape: 'leaf',
+                        x: pos.x + (i - 1.5) * 15,
+                        y: pos.y + (i - 1.5) * 10,
+                        rotation: 30 + i * 20
+                    });
+                }
+            });
+
+            // 绘制锦鲤
+            // 鱼身
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 3; j++) {
+                    placedShells.push({
+                        index: index++,
+                        shellId: j === 1 ? 'peach-pink' : 'moon-white',
+                        shape: 'fishscale',
+                        x: 200 + i * 12,
+                        y: 380 + j * 10 - 10,
+                        rotation: -30 + i * 3
+                    });
+                }
+            }
+
+            // 鱼尾
+            for (let i = 0; i < 5; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: 'peach-pink',
+                    shape: 'feather',
+                    x: 120 + i * 8,
+                    y: 380,
+                    rotation: -60 + i * 15
+                });
+            }
+
+            drawBase();
+            selectedShellInfo.textContent = 'AI自动镶嵌完成 - 荷花锦鲤';
+        }
+
+        // AI自动镶嵌 - 玉鸟牡丹
+        function autoPhoenix() {
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            placedShells = [];
+            selectedShellId = null;
+
+            let index = 0;
+
+            // 绘制牡丹花
+            const flowerCenters = [
+                { x: 300, y: 250 },
+                { x: 420, y: 350 },
+                { x: 180, y: 380 }
+            ];
+
+            flowerCenters.forEach(center => {
+                // 外层花瓣
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    placedShells.push({
+                        index: index++,
+                        shellId: 'peach-pink',
+                        shape: 'petal',
+                        x: center.x + Math.cos(angle) * 45,
+                        y: center.y + Math.sin(angle) * 45,
+                        rotation: (angle * 180 / Math.PI) + 90
+                    });
+                }
+                // 内层花瓣
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2 + 0.5;
+                    placedShells.push({
+                        index: index++,
+                        shellId: 'moon-white',
+                        shape: 'petal',
+                        x: center.x + Math.cos(angle) * 25,
+                        y: center.y + Math.sin(angle) * 25,
+                        rotation: (angle * 180 / Math.PI) + 90
+                    });
+                }
+            });
+
+            // 绘制枝叶
+            const branchPositions = [
+                { x: 300, y: 350, angle: 30 },
+                { x: 400, y: 400, angle: -20 },
+                { x: 200, y: 420, angle: 45 }
+            ];
+
+            branchPositions.forEach(branch => {
+                for (let i = 0; i < 6; i++) {
+                    placedShells.push({
+                        index: index++,
+                        shellId: 'peacock',
+                        shape: 'leaf',
+                        x: branch.x + Math.cos(branch.angle * Math.PI / 180) * i * 20,
+                        y: branch.y + Math.sin(branch.angle * Math.PI / 180) * i * 20,
+                        rotation: branch.angle + (i % 2 === 0 ? 30 : -30)
+                    });
+                }
+            });
+
+            // 绘制凤凰
+            // 凤凰身体
+            for (let i = 0; i < 7; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: 'gold-sand',
+                    shape: 'feather',
+                    x: 300 + i * 15,
+                    y: 450,
+                    rotation: -10 + i * 5
+                });
+            }
+
+            // 凤凰翅膀
+            for (let i = 0; i < 5; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: 'purple-sunset',
+                    shape: 'feather',
+                    x: 280 + i * 12,
+                    y: 400 - i * 8,
+                    rotation: -45 + i * 10
+                });
+            }
+
+            // 凤凰尾巴
+            for (let i = 0; i < 6; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: i % 2 === 0 ? 'gold-sand' : 'purple-sunset',
+                    shape: 'feather',
+                    x: 400 + i * 15,
+                    y: 450 - i * 20,
+                    rotation: 20 + i * 15
+                });
+            }
+
+            drawBase();
+            selectedShellInfo.textContent = 'AI自动镶嵌完成 - 玉鸟牡丹';
+        }
+
+        // AI自动镶嵌 - 月下山河
+        function autoLandscape() {
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            placedShells = [];
+            selectedShellId = null;
+
+            let index = 0;
+
+            // 绘制月亮
+            placedShells.push({
+                index: index++,
+                shellId: 'moon-white',
+                shape: 'oval',
+                x: 450,
+                y: 150,
+                rotation: 0
+            });
+
+            // 月亮光晕
+            for (let i = 0; i < 3; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: 'sea-fog',
+                    shape: 'oval',
+                    x: 450,
+                    y: 150,
+                    rotation: 0
+                });
+            }
+
+            // 绘制山体
+            const mountainLayers = [
+                { y: 350, height: 80, color: 'cyan-blue' },
+                { y: 400, height: 60, color: 'peacock' },
+                { y: 450, height: 50, color: 'cyan-blue' }
+            ];
+
+            mountainLayers.forEach(layer => {
+                for (let i = 0; i < 12; i++) {
+                    placedShells.push({
+                        index: index++,
+                        shellId: layer.color,
+                        shape: 'fragment',
+                        x: 50 + i * 50,
+                        y: layer.y + Math.random() * layer.height,
+                        rotation: Math.random() * 360
+                    });
+                }
+            });
+
+            // 绘制水波
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 15; col++) {
+                    placedShells.push({
+                        index: index++,
+                        shellId: 'cyan-blue',
+                        shape: 'leaf',
+                        x: 30 + col * 40,
+                        y: 520 + row * 15,
+                        rotation: (col % 2 === 0 ? 0 : 180) + row * 5
+                    });
+                }
+            }
+
+            // 添加星星
+            for (let i = 0; i < 20; i++) {
+                placedShells.push({
+                    index: index++,
+                    shellId: 'moon-white',
+                    shape: 'oval',
+                    x: 100 + Math.random() * 400,
+                    y: 50 + Math.random() * 100,
+                    rotation: Math.random() * 360
+                });
+            }
+
+            drawBase();
+            selectedShellInfo.textContent = 'AI自动镶嵌完成 - 月下山河';
+        }
+
+        // AI自动镶嵌 - 自由流光
+        function autoFlow() {
+            historyStack.push(JSON.parse(JSON.stringify(placedShells)));
+            placedShells = [];
+            selectedShellId = null;
+
+            let index = 0;
+
+            // 绘制流动光带
+            const colors = ['peach-pink', 'cyan-blue', 'purple-sunset', 'gold-sand', 'dawn', 'peacock'];
+            
+            for (let band = 0; band < 5; band++) {
+                const startAngle = band * 72;
+                const color = colors[band % colors.length];
+                
+                for (let i = 0; i < 15; i++) {
+                    const angle = (startAngle + i * 8) * Math.PI / 180;
+                    const radius = 100 + band * 40 + Math.sin(i * 0.5) * 20;
+                    placedShells.push({
+                        index: index++,
+                        shellId: color,
+                        shape: shellShapes[Math.floor(Math.random() * shellShapes.length)],
+                        x: 300 + Math.cos(angle) * radius,
+                        y: 300 + Math.sin(angle) * radius,
+                        rotation: angle * 180 / Math.PI + 90
+                    });
+                }
+            }
+
+            // 添加中心装饰
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                placedShells.push({
+                    index: index++,
+                    shellId: 'gold-sand',
+                    shape: 'petal',
+                    x: 300 + Math.cos(angle) * 30,
+                    y: 300 + Math.sin(angle) * 30,
+                    rotation: angle * 180 / Math.PI + 90
+                });
+            }
+
+            drawBase();
+            selectedShellInfo.textContent = 'AI自动镶嵌完成 - 自由流光';
+        }
+
+        // 生成作品故事
+        function generateStory() {
+            const patternNames = {
+                lotus: '荷花锦鲤',
+                phoenix: '玉鸟牡丹',
+                landscape: '月下山河',
+                flow: '自由流光'
+            };
+
+            const patternKeywords = {
+                lotus: ['荷花', '锦鲤', '水韵', '生机'],
+                phoenix: ['凤凰', '牡丹', '祥瑞', '华贵'],
+                landscape: ['山水', '明月', '意境', '悠远'],
+                flow: ['流光', '色彩', '创意', '梦想']
+            };
+
+            const patternMeanings = {
+                lotus: '荷花象征纯洁高雅，锦鲤寓意吉祥富贵，二者结合展现了自然和谐之美，传递出繁荣昌盛的美好祝愿。',
+                phoenix: '凤凰是百鸟之王，象征着重生与希望；牡丹被誉为花中之王，代表富贵吉祥。此作品展现了东方美学的极致魅力。',
+                landscape: '山水明月是中国传统美学的经典意象，表达了人与自然和谐共处的哲学思想，传递出宁静悠远的意境之美。',
+                flow: '自由流光是对创意与想象的诠释，每一片螺片都如光芒般闪耀，象征着无限可能的创造力。'
+            };
+
+            const patternKnowledge = {
+                lotus: '螺钿工艺始于商周时期，古人发现贝壳的天然光泽，将其切割成薄片镶嵌在器物表面。荷花锦鲤是传统螺钿常见题材，寓意年年有余、富贵吉祥。',
+                phoenix: '唐代是螺钿工艺的鼎盛时期，常被用于装饰皇家器物。凤凰牡丹图案融合了吉祥寓意与审美追求，是东方装饰艺术的经典之作。',
+                landscape: '螺钿山水题材讲究意境营造，通过贝壳的天然色彩表现山水层次。清代的螺钿山水屏风堪称艺术珍品，现收藏于各大博物馆。',
+                flow: '现代设计师将传统螺钿工艺与现代审美结合，创造出更具创意的作品。螺钿不仅是技艺，更是连接传统与现代的文化纽带。'
+            };
+
+            const authors = ['小小艺术家', '创意小达人', '非遗小传人', '螺钿小能手', '文化守护者'];
+
+            const storyName = `《${patternNames[currentPattern]}·${['流光', '璀璨', '雅致', '灵动', '华美'][Math.floor(Math.random() * 5)]}》`;
+            const author = authors[Math.floor(Math.random() * authors.length)];
+            const keywords = patternKeywords[currentPattern];
+            const meaning = patternMeanings[currentPattern];
+            const knowledge = patternKnowledge[currentPattern];
+
+            // 生成作品介绍
+            const shellCount = placedShells.length;
+            const usedColors = [...new Set(placedShells.map(s => shellTypes.find(t => t.id === s.shellId)?.name))];
+            const intro = `我用${usedColors.length}种颜色的螺片创作了这幅作品，共使用了${shellCount > 0 ? shellCount : '许多'}片螺片。${patternNames[currentPattern]}的主题让我感受到了传统文化的魅力，每一片贝壳都像彩虹一样闪闪发光！`;
+
+            // 更新弹窗内容
+            document.getElementById('storyName').textContent = storyName;
+            document.getElementById('storyAuthor').textContent = author;
+            document.getElementById('storyKeywords').innerHTML = keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('');
+            document.getElementById('storyMeaning').textContent = meaning;
+            document.getElementById('storyKnowledge').textContent = knowledge;
+            document.getElementById('storyIntro').textContent = intro;
+
+            // 显示弹窗
+            storyModal.classList.add('show');
+        }
+
+        // 语音输入
+        function startVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('当前浏览器暂不支持语音输入，建议使用 Chrome 或 Edge');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            
+            recognition.lang = 'zh-CN';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '🎧 正在听';
+
+            recognition.onresult = function(event) {
+                const result = event.results[0][0].transcript;
+                chatInput.value = result;
+            };
+
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '🎤';
+            };
+
+            recognition.onerror = function(event) {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '🎤';
+                console.error('语音识别错误:', event.error);
+            };
+
+            recognition.start();
+        }
+
+        // 发送AI问答
+        function sendChat() {
+            const question = chatInput.value.trim();
+            if (!question) return;
+
+            let answer = '';
+            
+            // 查找匹配的问题
+            for (const key in aiAnswers) {
+                if (question.includes(key)) {
+                    answer = aiAnswers[key][currentMode];
+                    break;
+                }
+            }
+
+            // 如果没有匹配，使用默认回答
+            if (!answer) {
+                answer = defaultAnswers[currentMode];
+            }
+
+            chatOutput.textContent = answer;
+            chatInput.value = '';
+        }
+
+        // 事件监听
+        function setupEventListeners() {
+            // 模式切换
+            modeButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                });
+            });
+
+            // 纹样切换
+            patternButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    patternButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentPattern = btn.dataset.pattern;
+                });
+            });
+
+            // 底板切换
+            baseButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    baseButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentBase = btn.dataset.base;
+                    drawBase();
+                });
+            });
+
+            // 语音按钮
+            voiceBtn.addEventListener('click', startVoiceRecognition);
+
+            // 发送按钮
+            sendBtn.addEventListener('click', sendChat);
+
+            // 回车键发送
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChat();
+            });
+
+            // 画布点击事件
+            canvas.addEventListener('click', (e) => {
+                if (selectedShellId !== null) {
+                    // 如果已选中螺片，点击空白处取消选中
+                    const target = e.target;
+                    if (target.tagName === 'svg' || target.tagName === 'rect' || target.tagName === 'circle' || target.tagName === 'path') {
+                        const groups = canvas.querySelectorAll('g[data-shell-index]');
+                        groups.forEach(g => g.setAttribute('style', 'cursor:pointer'));
+                        selectedShellId = null;
+                        selectedShellInfo.textContent = selectedShell ? `已选择：${selectedShell.name} - 点击画布放置` : '请从材料库选择螺片';
+                    }
+                } else if (selectedShell) {
+                    // 如果已选择螺片类型，点击画布放置螺片
+                    const rect = canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    addShell(x, y);
+                }
+            });
+
+            // 滚轮旋转
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (selectedShellId !== null) {
+                    const delta = e.deltaY > 0 ? -5 : 5;
+                    rotateShell(selectedShellId, delta);
+                }
+            });
+
+            // 旋转按钮
+            rotateLeftBtn.addEventListener('click', () => {
+                if (selectedShellId !== null) {
+                    rotateShell(selectedShellId, -15);
+                }
+            });
+
+            rotateRightBtn.addEventListener('click', () => {
+                if (selectedShellId !== null) {
+                    rotateShell(selectedShellId, 15);
+                }
+            });
+
+            // 撤销按钮
+            undoBtn.addEventListener('click', undo);
+
+            // 清空按钮
+            clearBtn.addEventListener('click', clearCanvas);
+
+            // AI自动镶嵌
+            autoBtn.addEventListener('click', () => {
+                switch(currentPattern) {
+                    case 'lotus':
+                        autoLotus();
+                        break;
+                    case 'phoenix':
+                        autoPhoenix();
+                        break;
+                    case 'landscape':
+                        autoLandscape();
+                        break;
+                    case 'flow':
+                        autoFlow();
+                        break;
+                }
+            });
+
+            // 生成故事
+            storyBtn.addEventListener('click', generateStory);
+
+            // 关闭弹窗
+            closeModal.addEventListener('click', () => {
+                storyModal.classList.remove('show');
+            });
+
+            // 点击弹窗外部关闭
+            storyModal.addEventListener('click', (e) => {
+                if (e.target === storyModal) {
+                    storyModal.classList.remove('show');
+                }
+            });
+        }
+
+        // 初始化页面
+        function init() {
+            initShellLibrary();
+            drawBase();
+            setupEventListeners();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
