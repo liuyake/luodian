@@ -1,1012 +1,1600 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>螺光工坊 - AI非遗螺钿互动创作平台</title>
-    <style>
-        /* 全局样式 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-            background: linear-gradient(180deg, #FFF8F0 0%, #FFFBF5 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        /* 自定义颜色 */
-        :root {
-            --gold: #D4AF37;
-            --pink: #FFB7C5;
-            --light-blue: #87CEEB;
-            --sea-green: #20B2AA;
-            --cream: #FFF8F0;
-            --coral: #FF7F50;
-            --purple: #9B59B6;
-            --sky-blue: #5DADE2;
-        }
-
-        /* 导航栏 */
-        .navbar {
-            background: linear-gradient(90deg, rgba(255,183,197,0.8) 0%, rgba(135,206,235,0.8) 100%);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 15px 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-        }
-
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-circle {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle at 30% 30%, #FFB7C5, #87CEEB);
-            border-radius: 50%;
-            border: 3px solid var(--gold);
-            position: relative;
-        }
-
-        .logo-circle::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle at 30% 30%, #FFF, #FFB7C5);
-            border-radius: 50%;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: bold;
-            background: linear-gradient(90deg, #D4AF37, #FF7F50);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #555;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 20px;
-            transition: all 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.8);
-            color: #FF7F50;
-        }
-
-        /* Hero 区域 */
-        .hero {
-            padding-top: 100px;
-            text-align: center;
-            padding: 120px 20px 60px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255,183,197,0.3) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -50px;
-            left: -50px;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(135,206,235,0.3) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .track-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #9B59B6 0%, #E74C3C 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(155,89,182,0.4);
-        }
-
-        .hero-title {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #D4AF37 0%, #FF7F50 50%, #9B59B6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 4px 20px rgba(212,175,55,0.3);
-        }
-
-        .hero-subtitle {
-            font-size: 20px;
-            color: #666;
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .hero-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
-            color: white;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 6px 20px rgba(135,206,235,0.4);
-            transition: all 0.3s;
-            border: 2px solid rgba(212,175,55,0.5);
-        }
-
-        .hero-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(135,206,235,0.6);
-        }
-
-        /* 螺钿主视觉 SVG */
-        .luodian-visual {
-            margin-top: 40px;
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* 创意介绍 */
-        .section {
-            padding: 60px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            background: linear-gradient(90deg, #20B2AA 0%, #5DADE2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-            transition: all 0.3s;
-            border-top: 4px solid transparent;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-        }
-
-        .card.pink { border-top-color: var(--pink); }
-        .card.blue { border-top-color: var(--light-blue); }
-        .card.green { border-top-color: var(--sea-green); }
-        .card.purple { border-top-color: var(--purple); }
-        .card.orange { border-top-color: var(--coral); }
-
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        .card-icon.pink-bg { background: linear-gradient(135deg, #FFE4E9 0%, #FFB7C5 100%); }
-        .card-icon.blue-bg { background: linear-gradient(135deg, #E0F4FF 0%, #87CEEB 100%); }
-        .card-icon.green-bg { background: linear-gradient(135deg, #E0FFEF 0%, #20B2AA 100%); }
-        .card-icon.purple-bg { background: linear-gradient(135deg, #F5E6FF 0%, #9B59B6 100%); }
-        .card-icon.orange-bg { background: linear-gradient(135deg, #FFE4D0 0%, #FF7F50 100%); }
-
-        .card-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .card-desc {
-            font-size: 15px;
-            color: #666;
-            line-height: 1.8;
-        }
-
-        /* 目标用户 */
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .user-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--pink), var(--light-blue));
-        }
-
-        .user-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-        }
-
-        .user-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            background: linear-gradient(135deg, rgba(255,183,197,0.3) 0%, rgba(135,206,235,0.3) 100%);
-        }
-
-        .user-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .user-pain {
-            font-size: 14px;
-            color: #FF7F50;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .user-desc {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-        }
-
-        /* 功能预览 */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: 25px;
-            overflow: hidden;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-
-        .feature-img {
-            height: 180px;
-            background: linear-gradient(135deg, #FFF8F0 0%, #FFE4E9 50%, #E0F4FF 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .feature-content {
-            padding: 25px;
-        }
-
-        .feature-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .feature-desc {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.7;
-        }
-
-        /* 交互区 */
-        .interactive-section {
-            background: linear-gradient(180deg, #FFF8F0 0%, #FFFBF5 100%);
-            border-radius: 30px;
-            padding: 40px;
-            margin-bottom: 30px;
-        }
-
-        .theme-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
-
-        .theme-tab {
-            padding: 12px 28px;
-            border-radius: 30px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-            color: #666;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .theme-tab:hover {
-            transform: translateY(-2px);
-        }
-
-        .theme-tab.active {
-            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(135,206,235,0.5);
-        }
-
-        .theme-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            min-height: 200px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        }
-
-        .theme-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .theme-desc {
-            font-size: 16px;
-            color: #666;
-            line-height: 1.8;
-        }
-
-        .theme-elements {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .element-tag {
-            padding: 8px 20px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(255,183,197,0.3) 0%, rgba(135,206,235,0.3) 100%);
-            color: #555;
-            font-size: 14px;
-            font-weight: 500;
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-
-        /* 价值意义 */
-        .value-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .value-card {
-            background: linear-gradient(135deg, white 0%, rgba(255,255,255,0.8) 100%);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            border: 2px solid rgba(212,175,55,0.2);
-        }
-
-        .value-icon {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            background: linear-gradient(135deg, var(--pink) 0%, var(--light-blue) 100%);
-            box-shadow: 0 4px 20px rgba(255,183,197,0.4);
-        }
-
-        .value-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .value-desc {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.7;
-        }
-
-        /* 报名帖摘要 */
-        .summary-box {
-            background: linear-gradient(135deg, rgba(255,183,197,0.1) 0%, rgba(135,206,235,0.1) 100%);
-            border-radius: 25px;
-            padding: 35px;
-            border: 2px dashed rgba(212,175,55,0.4);
-        }
-
-        .summary-label {
-            font-size: 14px;
-            color: #9B59B6;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .summary-text {
-            font-size: 16px;
-            color: #444;
-            line-height: 1.8;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        /* 页脚 */
-        .footer {
-            background: linear-gradient(180deg, rgba(135,206,235,0.2) 0%, rgba(255,183,197,0.2) 100%);
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .footer-text {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .footer-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--coral) 100%);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
-        }
-
-        /* 动画 */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes shine {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .shine-animation {
-            animation: shine 2s ease-in-out infinite;
-        }
-
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 32px;
-            }
-
-            .hero-subtitle {
-                font-size: 16px;
-            }
-
-            .navbar {
-                padding: 12px 15px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .section {
-                padding: 40px 15px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>螺光工坊｜AI 非遗螺钿互动创作平台 Demo</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #0d1c2e;
+      --card: rgba(255, 255, 255, 0.08);
+      --card2: rgba(255, 255, 255, 0.12);
+      --line: rgba(255, 255, 255, 0.16);
+      --text: #eef7ff;
+      --muted: rgba(238, 247, 255, 0.72);
+      --gold: #f4d27b;
+      --cyan: #6ad7ff;
+      --pink: #ff91d8;
+      --green: #91f2c3;
+      --purple: #c3a7ff;
+      --danger: #ff7b7b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(106, 215, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 84% 12%, rgba(255, 145, 216, 0.18), transparent 26%),
+        radial-gradient(circle at 62% 92%, rgba(244, 210, 123, 0.12), transparent 34%),
+        linear-gradient(135deg, #07111f 0%, #0d1c2e 48%, #130b22 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.08));
+      z-index: -1;
+    }
+
+    .shell-glow {
+      position: fixed;
+      width: 560px;
+      height: 560px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(26px);
+      opacity: 0.18;
+      background: conic-gradient(from 130deg, #74d9ff, #ffc5ef, #fff0a4, #93ffce, #a78bfa, #74d9ff);
+      animation: float 14s ease-in-out infinite;
+      z-index: -2;
+    }
+
+    .shell-glow.one { left: -190px; top: 120px; }
+    .shell-glow.two { right: -220px; bottom: 40px; animation-delay: -5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-28px) rotate(18deg); }
+    }
+
+    .app {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 56px;
+    }
+
+    header {
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: rgba(7, 17, 31, 0.76);
+      backdrop-filter: blur(18px);
+      border-radius: 999px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.26);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: conic-gradient(from 140deg, #69d9ff, #ffd8f4, #f7d875, #91f2c3, #b8a2ff, #69d9ff);
+      position: relative;
+      box-shadow: 0 0 30px rgba(106, 215, 255, 0.35);
+    }
+
+    .logo::after {
+      content: "螺";
+      position: absolute;
+      inset: 4px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #07111f;
+      background: rgba(255,255,255,0.78);
+      font-weight: 900;
+    }
+
+    .brand strong {
+      font-size: 18px;
+      letter-spacing: 0.04em;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .nav button, .pill-btn, .primary-btn, .ghost-btn {
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      transition: 0.2s ease;
+    }
+
+    .nav button {
+      padding: 10px 13px;
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .header-badge {
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: #08111e;
+      background: linear-gradient(135deg, #f4d27b, #ffdca3);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    main { padding-top: 22px; }
+
+    section {
+      display: none;
+      animation: show 0.36s ease both;
+    }
+
+    section.active { display: block; }
+
+    @keyframes show {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.06fr 0.94fr;
+      gap: 22px;
+      min-height: 650px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel.pad { padding: 26px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #091626;
+      background: linear-gradient(135deg, rgba(244,210,123,1), rgba(145,242,195,1));
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-size: clamp(40px, 5.6vw, 78px);
+      line-height: 1.04;
+      margin: 0 0 18px;
+      letter-spacing: -0.055em;
+    }
+
+    .gradient-text {
+      color: transparent;
+      background: linear-gradient(105deg, #ffffff, #6ad7ff 34%, #ff91d8 64%, #f4d27b);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .lead {
+      font-size: 19px;
+      line-height: 1.8;
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0 0 24px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 24px 0 30px;
+    }
+
+    .primary-btn,
+    .ghost-btn,
+    .pill-btn {
+      border-radius: 999px;
+      padding: 12px 17px;
+      font-weight: 800;
+    }
+
+    .primary-btn {
+      color: #07111f;
+      background: linear-gradient(135deg, #6ad7ff, #f4d27b);
+      box-shadow: 0 16px 34px rgba(106, 215, 255, 0.18);
+    }
+
+    .ghost-btn, .pill-btn {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .primary-btn:hover, .ghost-btn:hover, .pill-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.17);
+      padding: 16px;
+      border-radius: 18px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 26px;
+      color: var(--gold);
+    }
+
+    .metric span { color: var(--muted); font-size: 13px; }
+
+    .hero-art {
+      position: relative;
+      min-height: 650px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .lacquer-stage {
+      width: min(530px, 100%);
+      aspect-ratio: 0.78;
+      border-radius: 42px;
+      position: relative;
+      background:
+        radial-gradient(circle at 48% 37%, rgba(255,255,255,0.12), transparent 18%),
+        radial-gradient(circle at 50% 52%, rgba(106,215,255,0.15), transparent 32%),
+        linear-gradient(145deg, #18080b, #05060b 58%, #210b19);
+      border: 1px solid rgba(244,210,123,0.34);
+      box-shadow: inset 0 0 70px rgba(255, 214, 117, 0.08), 0 40px 90px rgba(0,0,0,0.42);
+      overflow: hidden;
+    }
+
+    .lacquer-stage::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 32px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent),
+        radial-gradient(circle at 30% 10%, rgba(255,255,255,0.12), transparent 18%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0.28));
+    }
+
+    .big-shell {
+      position: absolute;
+      border-radius: 999px 999px 999px 220px;
+      background: conic-gradient(from 80deg, #6ad7ff, #ffbdec, #fff0a4, #8cf1c7, #a892ff, #6ad7ff);
+      filter: drop-shadow(0 0 24px rgba(106,215,255,0.38));
+      transform-origin: center;
+      opacity: 0.9;
+      animation: shimmer 4.8s ease-in-out infinite;
+    }
+
+    .big-shell.s1 { width: 160px; height: 54px; left: 60px; top: 210px; transform: rotate(-34deg); }
+    .big-shell.s2 { width: 190px; height: 58px; right: 52px; top: 275px; transform: rotate(26deg); animation-delay: -1.5s; }
+    .big-shell.s3 { width: 122px; height: 40px; left: 170px; top: 340px; transform: rotate(8deg); animation-delay: -2.5s; }
+    .big-shell.s4 { width: 90px; height: 32px; left: 220px; top: 155px; transform: rotate(80deg); animation-delay: -3s; }
+
+    @keyframes shimmer {
+      0%, 100% { filter: hue-rotate(0deg) drop-shadow(0 0 18px rgba(106,215,255,0.32)); }
+      50% { filter: hue-rotate(28deg) drop-shadow(0 0 30px rgba(255,145,216,0.48)); }
+    }
+
+    .stage-caption {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      bottom: 26px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(7, 17, 31, 0.74);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .stage-caption b { color: var(--gold); }
+    .stage-caption p { color: var(--muted); margin: 6px 0 0; line-height: 1.6; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .title-row h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.03em;
+    }
+
+    .title-row p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .form-card, .info-card, .tool-card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin: 16px 0 8px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.17);
+      color: var(--text);
+      background: rgba(0,0,0,0.22);
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      font: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(106, 215, 255, 0.65);
+      box-shadow: 0 0 0 4px rgba(106, 215, 255, 0.12);
+    }
+
+    select option { background: #07111f; color: #fff; }
+
+    textarea { min-height: 112px; resize: vertical; line-height: 1.65; }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 520px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .avatar {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #07111f;
+      background: linear-gradient(135deg, #6ad7ff, #f4d27b);
+    }
+
+    .bubble {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      border-radius: 18px;
+      padding: 14px 16px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .bubble strong { color: var(--text); }
+
+    .quick-questions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .quick-questions button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 11px;
+      cursor: pointer;
+    }
+
+    .quick-questions button:hover { color: var(--text); background: rgba(255,255,255,0.12); }
+
+    .creator-layout {
+      display: grid;
+      grid-template-columns: 360px minmax(420px, 1fr) 330px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .workspace {
+      position: relative;
+      min-height: 700px;
+      padding: 18px;
+    }
+
+    .svg-frame {
+      position: relative;
+      width: 100%;
+      min-height: 650px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(244,210,123,0.22);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 48% 35%, rgba(255,255,255,0.08), transparent 16%),
+        linear-gradient(140deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      overflow: hidden;
+    }
+
+    #artSvg {
+      width: min(100%, 660px);
+      height: auto;
+      max-height: 640px;
+      display: block;
+      filter: drop-shadow(0 34px 40px rgba(0,0,0,0.42));
+      touch-action: none;
+    }
+
+    .chip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      min-height: 68px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      background: rgba(0,0,0,0.18);
+      cursor: pointer;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .chip::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 44px;
+      height: 22px;
+      border-radius: 80% 70% 80% 30%;
+      background: conic-gradient(from 100deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c1));
+      box-shadow: 0 0 24px rgba(255,255,255,0.18);
+      transform: rotate(var(--r));
+    }
+
+    .chip.active {
+      border-color: rgba(244,210,123,0.75);
+      box-shadow: 0 0 0 4px rgba(244,210,123,0.12);
+      background: rgba(244,210,123,0.12);
+    }
+
+    .mini-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.18);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .mini-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #07111f;
+      background: linear-gradient(135deg, #f4d27b, #6ad7ff);
+      font-weight: 900;
+    }
+
+    .mini-item b { display: block; margin-bottom: 4px; }
+    .mini-item span { color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .hint {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px dashed rgba(244,210,123,0.35);
+      color: var(--muted);
+      line-height: 1.65;
+      background: rgba(244,210,123,0.06);
+      font-size: 13px;
+    }
+
+    .story-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .poster {
+      min-height: 690px;
+      border-radius: 28px;
+      padding: 22px;
+      background:
+        radial-gradient(circle at 60% 20%, rgba(106,215,255,0.18), transparent 20%),
+        linear-gradient(160deg, rgba(0,0,0,0.35), rgba(255,255,255,0.07));
+      border: 1px solid rgba(244,210,123,0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poster-art {
+      height: 430px;
+      border-radius: 24px;
+      background: #05070d;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .poster svg { width: 100%; height: 100%; }
+
+    .poster h3 {
+      font-size: 28px;
+      margin: 0 0 10px;
+      color: var(--gold);
+    }
+
+    .poster p { color: var(--muted); line-height: 1.8; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tag {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .mockup {
+      min-height: 300px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.07);
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    .mockup h3 { margin: 0 0 8px; }
+    .mockup p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    .product-phone,
+    .product-bookmark,
+    .product-box,
+    .product-fan {
+      position: absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(244,210,123,0.28);
+      background: linear-gradient(145deg, #07070d, #1b0912);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.34);
+      overflow: hidden;
+    }
+
+    .product-phone { width: 112px; height: 210px; border-radius: 28px; }
+    .product-bookmark { width: 74px; height: 230px; border-radius: 24px 24px 34px 34px; }
+    .product-box { width: 190px; height: 122px; border-radius: 24px; transform: translate(-50%, -50%) perspective(600px) rotateX(12deg) rotateZ(-3deg); }
+    .product-fan {
+      width: 230px;
+      height: 140px;
+      border-radius: 230px 230px 36px 36px;
+      transform: translate(-50%, -44%);
+    }
+
+    .mini-art {
+      position: absolute;
+      inset: 12px;
+      border-radius: inherit;
+      opacity: 0.95;
+      background:
+        radial-gradient(circle at 35% 46%, rgba(255,255,255,0.26), transparent 6%),
+        conic-gradient(from 120deg at 54% 45%, rgba(106,215,255,0.85), rgba(255,145,216,0.9), rgba(244,210,123,0.9), rgba(145,242,195,0.86), rgba(106,215,255,0.85));
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1), rgba(0,0,0,0.18) 64%, transparent 76%);
+    }
+
+    .copy-box {
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.2);
+      border-radius: 18px;
+      padding: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+
+    .submit-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 7px;
+      bottom: 7px;
+      width: 1px;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .step {
+      position: relative;
+      margin: 0 0 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 14px 14px 14px 18px;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: -16px;
+      top: 22px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 6px rgba(244,210,123,0.12);
+    }
+
+    .step b { display: block; color: var(--text); margin-bottom: 5px; }
+    .step span { color: var(--muted); line-height: 1.6; font-size: 13px; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%) translateY(20px);
+      border: 1px solid rgba(244,210,123,0.42);
+      background: rgba(7,17,31,0.88);
+      color: var(--text);
+      backdrop-filter: blur(16px);
+      padding: 12px 16px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 99;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      text-align: center;
+      color: rgba(238,247,255,0.58);
+      font-size: 13px;
+    }
+
+    .fragment {
+      cursor: grab;
+    }
+
+    .fragment:active { cursor: grabbing; }
+
+    .pattern-line {
+      stroke: rgba(244,210,123,0.42);
+      stroke-width: 2.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-dasharray: 6 8;
+      opacity: 0.9;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1180px) {
+      header { border-radius: 28px; align-items: flex-start; }
+      .brand { min-width: auto; }
+      .header-badge { display: none; }
+      .hero, .grid-2, .story-layout, .submit-layout { grid-template-columns: 1fr; }
+      .creator-layout { grid-template-columns: 1fr; }
+      .workspace { min-height: auto; }
+      .svg-frame { min-height: 520px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 720px) {
+      .app { width: min(100% - 20px, 1480px); }
+      header { position: relative; top: 0; border-radius: 24px; flex-direction: column; }
+      .nav { justify-content: flex-start; }
+      .hero-art { min-height: 480px; }
+      .lacquer-stage { aspect-ratio: 0.88; }
+      .grid-3, .mockup-grid, .metrics { grid-template-columns: 1fr; }
+      .panel.pad { padding: 18px; }
+      h1 { font-size: 44px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">
-                <div class="logo-circle"></div>
-                <span class="logo-text">螺光工坊</span>
-            </div>
-            <div class="nav-links">
-                <a href="#intro">创意介绍</a>
-                <a href="#users">目标用户</a>
-                <a href="#features">功能预览</a>
-                <a href="#interactive">互动体验</a>
-                <a href="#values">价值意义</a>
-            </div>
+  <div class="shell-glow one"></div>
+  <div class="shell-glow two"></div>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <strong>螺光工坊</strong>
+          <span>AI 非遗螺钿互动创作平台</span>
         </div>
-    </nav>
+      </div>
+      <nav class="nav" aria-label="页面导航">
+        <button class="active" data-section="home">项目首页</button>
+        <button data-section="guide">AI 导览</button>
+        <button data-section="creator">创作工坊</button>
+        <button data-section="story">作品故事</button>
+        <button data-section="mockup">文创预览</button>
+        <button data-section="submit">参赛材料</button>
+      </nav>
+      <div class="header-badge">社会服务赛道 / 公益附加赛题</div>
+    </header>
 
-    <!-- Hero 区域 -->
-    <section class="hero">
-        <span class="track-badge">社会服务赛道 | 社会公益方向</span>
-        <h1 class="hero-title">螺光工坊</h1>
-        <p class="hero-subtitle">AI非遗螺钿互动创作平台<br>让每个孩子都能成为非遗文化的创作者</p>
-        <a href="#intro" class="hero-btn">开始探索</a>
-        
-        <!-- 螺钿风格主视觉 -->
-        <div class="luodian-visual">
-            <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
-                <!-- 荷叶 -->
-                <ellipse cx="120" cy="320" rx="100" ry="35" fill="#20B2AA" opacity="0.7"/>
-                <ellipse cx="480" cy="340" rx="80" ry="30" fill="#2E8B57" opacity="0.6"/>
-                <ellipse cx="300" cy="360" rx="120" ry="40" fill="#3CB371" opacity="0.5"/>
-                
-                <!-- 荷花 -->
-                <g transform="translate(200, 200)">
-                    <ellipse cx="0" cy="-40" rx="30" ry="45" fill="#FFB7C5" opacity="0.9"/>
-                    <ellipse cx="-25" cy="-20" rx="30" ry="45" fill="#FFC0CB" opacity="0.8"/>
-                    <ellipse cx="25" cy="-20" rx="30" ry="45" fill="#FFB6C1" opacity="0.8"/>
-                    <circle cx="0" cy="0" r="15" fill="#FFD700"/>
-                </g>
-                
-                <g transform="translate(400, 180)">
-                    <ellipse cx="0" cy="-35" rx="25" ry="40" fill="#FF69B4" opacity="0.85"/>
-                    <ellipse cx="-20" cy="-15" rx="25" ry="40" fill="#FF1493" opacity="0.75"/>
-                    <ellipse cx="20" cy="-15" rx="25" ry="40" fill="#FF7FFF" opacity="0.75"/>
-                    <circle cx="0" cy="0" r="12" fill="#FFD700"/>
-                </g>
-                
-                <!-- 锦鲤 -->
-                <g class="float-animation" style="animation-delay: 0s;">
-                    <ellipse cx="280" cy="280" rx="50" ry="25" fill="#FF7F50"/>
-                    <ellipse cx="330" cy="280" rx="30" ry="18" fill="#FF6347"/>
-                    <circle cx="345" cy="275" r="5" fill="#333"/>
-                    <path d="M355 280 Q370 275 365 285 Q370 290 355 280" fill="#333"/>
-                    <ellipse cx="260" cy="275" rx="15" ry="8" fill="#FFD700" opacity="0.8"/>
-                    <ellipse cx="250" cy="285" rx="10" ry="6" fill="#FFD700" opacity="0.6"/>
-                </g>
-                
-                <g class="float-animation" style="animation-delay: 1.5s;">
-                    <ellipse cx="420" cy="300" rx="45" ry="22" fill="#9B59B6"/>
-                    <ellipse cx="465" cy="300" rx="28" ry="16" fill="#8E44AD"/>
-                    <circle cx="478" cy="295" r="5" fill="#333"/>
-                    <path d="M488 300 Q500 295 496 305 Q500 310 488 300" fill="#333"/>
-                    <ellipse cx="405" cy="295" rx="12" ry="7" fill="#FFD700" opacity="0.8"/>
-                </g>
-                
-                <!-- 鸟 -->
-                <g class="float-animation" style="animation-delay: 0.8s;">
-                    <ellipse cx="150" cy="100" rx="35" ry="20" fill="#FFE4B5"/>
-                    <circle cx="165" cy="95" r="8" fill="#333"/>
-                    <path d="M175 95 L195 85 L175 92 Z" fill="#FF7F50"/>
-                    <path d="M120 100 Q80 80 100 110" stroke="#FFE4B5" stroke-width="8" fill="none" stroke-linecap="round"/>
-                    <path d="M140 115 Q130 140 145 135" stroke="#FFE4B5" stroke-width="6" fill="none" stroke-linecap="round"/>
-                </g>
-                
-                <!-- 牡丹 -->
-                <g transform="translate(520, 120)">
-                    <ellipse cx="0" cy="0" rx="40" ry="50" fill="#FF69B4" opacity="0.9"/>
-                    <ellipse cx="-35" cy="-10" rx="35" ry="45" fill="#FF1493" opacity="0.8"/>
-                    <ellipse cx="35" cy="-10" rx="35" ry="45" fill="#FF7FFF" opacity="0.8"/>
-                    <ellipse cx="0" cy="35" rx="30" ry="40" fill="#FFB6C1" opacity="0.7"/>
-                    <circle cx="0" cy="0" r="18" fill="#FFD700"/>
-                </g>
-                
-                <!-- 装饰珍珠 -->
-                <circle cx="80" cy="150" r="8" fill="url(#pearl1)" class="shine-animation"/>
-                <circle cx="520" cy="250" r="6" fill="url(#pearl2)" class="shine-animation" style="animation-delay: 0.5s;"/>
-                <circle cx="180" cy="280" r="5" fill="url(#pearl3)" class="shine-animation" style="animation-delay: 1s;"/>
-                <circle cx="450" cy="150" r="7" fill="url(#pearl4)" class="shine-animation" style="animation-delay: 1.5s;"/>
-                
-                <!-- 珠光渐变定义 -->
-                <defs>
-                    <radialGradient id="pearl1" cx="30%" cy="30%">
-                        <stop offset="0%" stop-color="#FFF"/>
-                        <stop offset="50%" stop-color="#FFE4E9"/>
-                        <stop offset="100%" stop-color="#FFB7C5"/>
-                    </radialGradient>
-                    <radialGradient id="pearl2" cx="30%" cy="30%">
-                        <stop offset="0%" stop-color="#FFF"/>
-                        <stop offset="50%" stop-color="#E0F4FF"/>
-                        <stop offset="100%" stop-color="#87CEEB"/>
-                    </radialGradient>
-                    <radialGradient id="pearl3" cx="30%" cy="30%">
-                        <stop offset="0%" stop-color="#FFF"/>
-                        <stop offset="50%" stop-color="#FFFACD"/>
-                        <stop offset="100%" stop-color="#FFD700"/>
-                    </radialGradient>
-                    <radialGradient id="pearl4" cx="30%" cy="30%">
-                        <stop offset="0%" stop-color="#FFF"/>
-                        <stop offset="50%" stop-color="#F5E6FF"/>
-                        <stop offset="100%" stop-color="#9B59B6"/>
-                    </radialGradient>
+    <main>
+      <section id="home" class="active">
+        <div class="hero">
+          <div class="panel pad">
+            <div class="eyebrow">✨ 从“看非遗”到“做非遗”</div>
+            <h1><span class="gradient-text">螺光工坊</span><br />让每个人体验螺钿之美</h1>
+            <p class="lead">
+              这是一个面向青少年、非遗馆、文旅研学和文创设计的 AI 互动平台。用户可以学习螺钿知识、生成专属纹样、模拟镶嵌工艺，并把作品预览到书签、团扇、首饰盒等文创载体上。
+            </p>
+            <div class="cta-row">
+              <button class="primary-btn" data-jump="creator">立即进入创作工坊</button>
+              <button class="ghost-btn" data-jump="guide">先了解什么是螺钿</button>
+            </div>
+            <div class="grid-3">
+              <div class="info-card">
+                <h3>AI 知识导览</h3>
+                <p class="small-note">面向儿童、游客、老师三种讲解口吻，降低非遗理解门槛。</p>
+              </div>
+              <div class="info-card">
+                <h3>虚拟镶嵌手作</h3>
+                <p class="small-note">选底板、选贝片、生成纹样、点击/拖拽完成数字螺钿创作。</p>
+              </div>
+              <div class="info-card">
+                <h3>作品传播转化</h3>
+                <p class="small-note">自动生成作品故事、知识卡和文创应用效果，适合比赛展示。</p>
+              </div>
+            </div>
+            <div class="metrics">
+              <div class="metric"><b>5</b><span>核心体验模块</span></div>
+              <div class="metric"><b>0</b><span>外部依赖，单文件运行</span></div>
+              <div class="metric"><b>3</b><span>用户讲解模式</span></div>
+              <div class="metric"><b>4</b><span>文创应用预览</span></div>
+            </div>
+          </div>
+          <div class="panel hero-art">
+            <div class="lacquer-stage" aria-label="螺钿视觉装置">
+              <div class="big-shell s1"></div>
+              <div class="big-shell s2"></div>
+              <div class="big-shell s3"></div>
+              <div class="big-shell s4"></div>
+              <div class="stage-caption">
+                <b>螺钿 = 贝壳流光 + 漆艺底色 + 纹样寓意</b>
+                <p>在黑漆般的底板上，贝片随角度变幻出蓝、粉、金、绿的光泽，形成兼具东方审美与现代设计感的非遗视觉。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="guide">
+        <div class="grid-2">
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>AI 非遗导览</h2>
+                <p>本 Demo 采用本地规则模拟 AI 回答，后续可在 Trae 中接入大模型 API。</p>
+              </div>
+            </div>
+            <div class="form-card">
+              <label for="audienceMode">选择讲解对象</label>
+              <select id="audienceMode">
+                <option value="child">10岁小学生</option>
+                <option value="tourist">非遗馆游客</option>
+                <option value="teacher">美育老师</option>
+              </select>
+              <label for="guideQuestion">请输入你想问的问题</label>
+              <textarea id="guideQuestion" placeholder="例如：什么是螺钿？贝壳为什么会发光？螺钿可以做成什么文创？"></textarea>
+              <div class="quick-questions">
+                <button data-q="什么是螺钿？">什么是螺钿？</button>
+                <button data-q="螺钿的制作流程是什么？">制作流程</button>
+                <button data-q="贝壳为什么会有彩色流光？">流光原理</button>
+                <button data-q="螺钿如何做成文创产品？">文创转化</button>
+              </div>
+              <div class="cta-row">
+                <button class="primary-btn" id="askBtn">生成讲解</button>
+                <button class="ghost-btn" id="clearChatBtn">清空对话</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel pad">
+            <div class="chat-box" id="chatBox">
+              <div class="message">
+                <div class="avatar">AI</div>
+                <div class="bubble">
+                  <strong>欢迎来到螺光工坊。</strong><br />你可以问我螺钿是什么、怎么制作、为什么会发光，也可以让我把螺钿知识改写成适合小学生、游客或老师使用的讲解词。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="creator">
+        <div class="creator-layout">
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>纹样生成器</h2>
+                <p>输入主题，选择纹样和底板，生成螺钿风格线稿。</p>
+              </div>
+            </div>
+            <div class="form-card">
+              <label for="userTheme">作品关键词</label>
+              <input id="userTheme" value="月下荷花与锦鲤" placeholder="如：凤凰祥云、敦煌飞天、我的名字、送给妈妈的礼物" />
+              <label for="patternType">纹样类型</label>
+              <select id="patternType">
+                <option value="lotus">荷花锦鲤</option>
+                <option value="phoenix">凤凰祥云</option>
+                <option value="mountain">月下山河</option>
+                <option value="free">自由流光</option>
+              </select>
+              <label for="baseShape">载体底板</label>
+              <select id="baseShape">
+                <option value="plate">圆形漆盘</option>
+                <option value="fan">团扇</option>
+                <option value="box">首饰盒面</option>
+                <option value="bookmark">书签</option>
+              </select>
+              <div class="cta-row">
+                <button class="primary-btn" id="generatePatternBtn">生成纹样</button>
+                <button class="ghost-btn" id="randomBtn">随机灵感</button>
+              </div>
+              <div class="hint">操作提示：选择右侧贝片后，点击画布即可镶嵌；按住已放置的贝片可以拖动位置。</div>
+            </div>
+          </div>
+
+          <div class="panel workspace">
+            <div class="svg-frame">
+              <svg id="artSvg" viewBox="0 0 760 760" role="img" aria-label="螺钿创作画布">
+                <defs id="svgDefs">
+                  <radialGradient id="lacquerBg" cx="45%" cy="36%" r="68%">
+                    <stop offset="0%" stop-color="#2b111a"/>
+                    <stop offset="55%" stop-color="#06070d"/>
+                    <stop offset="100%" stop-color="#170714"/>
+                  </radialGradient>
+                  <linearGradient id="goldLine" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0" stop-color="#f4d27b" stop-opacity=".28"/>
+                    <stop offset="1" stop-color="#ffffff" stop-opacity=".08"/>
+                  </linearGradient>
+                  <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
-            </svg>
-        </div>
-    </section>
+                <g id="baseLayer"></g>
+                <g id="patternLayer"></g>
+                <g id="fragmentLayer"></g>
+                <g id="labelLayer"></g>
+              </svg>
+            </div>
+          </div>
 
-    <!-- 创意介绍 -->
-    <section id="intro" class="section">
-        <h2 class="section-title">✨ 创意介绍</h2>
-        
-        <div class="card pink">
-            <div class="card-icon pink-bg">🎯</div>
-            <h3 class="card-title">我们想解决什么问题？</h3>
-            <p class="card-desc">传统螺钿工艺门槛高、材料昂贵，普通家庭难以接触。非遗文化传承面临断层，博物馆静态展示难以激发青少年兴趣。我们希望打破这些壁垒，让每个孩子都能体验螺钿之美。</p>
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>贝片材料库</h2>
+                <p>选择一种贝片光泽，再点击画布放置。</p>
+              </div>
+            </div>
+            <div class="chip-grid" id="chipGrid"></div>
+            <div class="cta-row">
+              <button class="primary-btn" id="autoInlayBtn">AI 自动镶嵌</button>
+              <button class="ghost-btn" id="undoBtn">撤销一片</button>
+              <button class="ghost-btn" id="clearFragmentsBtn">清空贝片</button>
+            </div>
+            <div class="mini-list">
+              <div class="mini-item"><div class="mini-icon">1</div><div><b>选题</b><span>确定纹样主题：自然、祝福、地域文化或个人故事。</span></div></div>
+              <div class="mini-item"><div class="mini-icon">2</div><div><b>拆解</b><span>将图案分解为底色、线稿、贝片区域、镶嵌顺序。</span></div></div>
+              <div class="mini-item"><div class="mini-icon">3</div><div><b>镶嵌</b><span>用虚拟贝片填充图案，模拟流光质感。</span></div></div>
+              <div class="mini-item"><div class="mini-icon">4</div><div><b>传播</b><span>生成作品故事和文创预览，形成可分享成果。</span></div></div>
+            </div>
+          </div>
         </div>
-        
-        <div class="card blue">
-            <div class="card-icon blue-bg">❤️</div>
-            <h3 class="card-title">为什么要做这件事？</h3>
-            <p class="card-desc">非遗文化是中华民族的瑰宝，但许多传统工艺正在逐渐消失。我们相信，通过数字化和AI技术，可以让古老的螺钿工艺焕发新生，让下一代爱上传统文化。</p>
-        </div>
-        
-        <div class="card green">
-            <div class="card-icon green-bg">🎨</div>
-            <h3 class="card-title">这是什么产品？</h3>
-            <p class="card-desc">螺光工坊是一个AI驱动的非遗螺钿互动创作平台。通过虚拟螺片镶嵌、AI导览讲解、作品故事生成等功能，让用户在游戏化体验中学习螺钿工艺，创作出属于自己的数字螺钿作品。</p>
-        </div>
-    </section>
+      </section>
 
-    <!-- 目标用户 -->
-    <section id="users" class="section">
-        <h2 class="section-title">👥 目标用户及痛点</h2>
-        
-        <div class="user-grid">
-            <div class="user-card">
-                <div class="user-icon">👦</div>
-                <h3 class="user-title">小学生</h3>
-                <p class="user-pain">痛点：缺乏动手体验机会</p>
-                <p class="user-desc">对传统文化充满好奇，但缺乏有趣的学习方式，难以接触到昂贵的非遗工艺材料。</p>
+      <section id="story">
+        <div class="story-layout">
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>作品故事生成</h2>
+                <p>根据你的主题与纹样自动生成作品名、寓意说明和非遗知识卡。</p>
+              </div>
             </div>
-            
-            <div class="user-card">
-                <div class="user-icon">👩🏫</div>
-                <h3 class="user-title">美育教师</h3>
-                <p class="user-pain">痛点：教学资源不足</p>
-                <p class="user-desc">需要丰富的美育课程资源，希望有数字化工具辅助教学，让课堂更生动有趣。</p>
+            <div class="form-card">
+              <label for="storyName">创作者昵称</label>
+              <input id="storyName" value="小小非遗设计师" />
+              <label for="storyIntent">想表达的寓意</label>
+              <textarea id="storyIntent">希望用螺钿的流光表现传统文化在今天继续闪耀，也希望这件作品可以送给家人，表达平安、成长与祝福。</textarea>
+              <div class="cta-row">
+                <button class="primary-btn" id="makeStoryBtn">生成作品海报</button>
+                <button class="ghost-btn" id="copyStoryBtn">复制文案</button>
+                <button class="ghost-btn" id="downloadSvgBtn">下载 SVG 作品</button>
+              </div>
             </div>
-            
-            <div class="user-card">
-                <div class="user-icon">🏛️</div>
-                <h3 class="user-title">非遗馆/博物馆</h3>
-                <p class="user-pain">痛点：互动体验不足</p>
-                <p class="user-desc">希望提供沉浸式互动体验，让展品"活"起来，增强观众参与感和记忆度。</p>
+            <div class="copy-box" id="storyText"></div>
+          </div>
+          <div class="panel pad">
+            <div class="poster" id="poster">
+              <div class="poster-art" id="posterArt"></div>
+              <h3 id="posterTitle">《月下螺光》</h3>
+              <p id="posterDesc">以黑漆为夜色，以贝片为月光。用户通过虚拟镶嵌完成一件兼具东方审美与现代交互体验的数字螺钿作品。</p>
+              <div class="tag-row">
+                <span class="tag">非遗螺钿</span>
+                <span class="tag">AI 生成纹样</span>
+                <span class="tag">青少年美育</span>
+                <span class="tag">文创转化</span>
+              </div>
             </div>
-            
-            <div class="user-card">
-                <div class="user-icon">👨‍👩‍👧</div>
-                <h3 class="user-title">亲子家庭</h3>
-                <p class="user-pain">痛点：缺乏文化亲子活动</p>
-                <p class="user-desc">希望有寓教于乐的家庭活动，增进亲子感情的同时，让孩子了解传统文化。</p>
-            </div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- 功能预览 -->
-    <section id="features" class="section">
-        <h2 class="section-title">🎮 功能预览</h2>
-        
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-img">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                        <circle cx="60" cy="60" r="50" fill="#FFE4E9"/>
-                        <circle cx="60" cy="60" r="35" fill="#FFB7C5"/>
-                        <path d="M45 55 Q60 35 75 55" stroke="#FF69B4" stroke-width="3" fill="none"/>
-                        <circle cx="60" cy="65" r="8" fill="#FFD700"/>
-                    </svg>
-                </div>
-                <div class="feature-content">
-                    <h3 class="feature-title">AI智能导览</h3>
-                    <p class="feature-desc">语音讲解螺钿工艺的历史、技法和文化内涵，让学习变得有趣又轻松。</p>
-                </div>
+      <section id="mockup">
+        <div class="panel pad">
+          <div class="title-row">
+            <div>
+              <h2>文创应用预览</h2>
+              <p>将用户生成的螺钿纹样预览到多种文创产品，展示“非遗活化”的后续价值。</p>
             </div>
-            
-            <div class="feature-card">
-                <div class="feature-img">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                        <rect x="10" y="10" width="100" height="100" fill="#E0F4FF" rx="10"/>
-                        <circle cx="35" cy="35" r="15" fill="#FFB7C5"/>
-                        <circle cx="85" cy="35" r="12" fill="#87CEEB"/>
-                        <circle cx="60" cy="70" r="18" fill="#FFD700"/>
-                        <circle cx="35" cy="85" r="10" fill="#9B59B6"/>
-                        <circle cx="85" cy="85" r="13" fill="#20B2AA"/>
-                    </svg>
-                </div>
-                <div class="feature-content">
-                    <h3 class="feature-title">虚拟螺片镶嵌</h3>
-                    <p class="feature-desc">拖拽珠光螺片进行创作，AI自动配色建议，让每个孩子都能成为设计师。</p>
-                </div>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-img">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                        <rect x="15" y="20" width="90" height="70" fill="#FFF8F0" rx="5" stroke="#D4AF37" stroke-width="2"/>
-                        <text x="60" y="50" text-anchor="middle" fill="#333" font-size="12">📖</text>
-                        <line x1="25" y1="60" x2="95" y2="60" stroke="#FFB7C5" stroke-width="2"/>
-                        <circle cx="60" cy="85" r="12" fill="#FF7F50"/>
-                    </svg>
-                </div>
-                <div class="feature-content">
-                    <h3 class="feature-title">作品故事</h3>
-                    <p class="feature-desc">为每件作品生成独特的文化故事，让创作更有意义，传承文化记忆。</p>
-                </div>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-img">
-                    <svg width="120" height="120" viewBox="0 0 120 120">
-                        <rect x="20" y="30" width="80" height="50" fill="#FFF" rx="5" stroke="#D4AF37" stroke-width="2"/>
-                        <circle cx="45" cy="55" r="15" fill="#FFB7C5"/>
-                        <circle cx="75" cy="55" r="15" fill="#87CEEB"/>
-                        <rect x="35" y="85" width="50" height="10" fill="#FFE4E9" rx="5"/>
-                    </svg>
-                </div>
-                <div class="feature-content">
-                    <h3 class="feature-title">文创预览</h3>
-                    <p class="feature-desc">一键生成文创产品预览，将作品应用到文具、饰品、家居用品等。</p>
-                </div>
-            </div>
+            <button class="primary-btn" data-jump="creator">返回继续创作</button>
+          </div>
+          <div class="mockup-grid">
+            <div class="mockup"><h3>手机壳</h3><p>年轻用户日常传播载体</p><div class="product-phone"><div class="mini-art"></div></div></div>
+            <div class="mockup"><h3>非遗书签</h3><p>适合研学课程纪念品</p><div class="product-bookmark"><div class="mini-art"></div></div></div>
+            <div class="mockup"><h3>首饰盒</h3><p>还原螺钿与漆器结合场景</p><div class="product-box"><div class="mini-art"></div></div></div>
+            <div class="mockup"><h3>团扇</h3><p>适合文旅展陈和打卡拍照</p><div class="product-fan"><div class="mini-art"></div></div></div>
+          </div>
         </div>
-    </section>
+      </section>
 
-    <!-- 简单交互区 -->
-    <section id="interactive" class="section">
-        <h2 class="section-title">🎯 简单交互体验</h2>
-        
-        <div class="interactive-section">
-            <p style="text-align:center; margin-bottom:20px; font-size:16px; color:#666;">点击不同主题，了解螺钿创作灵感</p>
-            
-            <div class="theme-tabs">
-                <button class="theme-tab active" data-theme="lotus">🌸 荷花主题</button>
-                <button class="theme-tab" data-theme="fish">🐟 锦鲤主题</button>
-                <button class="theme-tab" data-theme="bird">🐦 花鸟主题</button>
-                <button class="theme-tab" data-theme="peony">🌺 牡丹主题</button>
+      <section id="submit">
+        <div class="submit-layout">
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>报名帖内容</h2>
+                <p>可直接复制到 Trae 创意大赛报名/初赛帖中。</p>
+              </div>
             </div>
-            
-            <div class="theme-content">
-                <div id="theme-lotus" class="theme-item">
-                    <h3 class="theme-title">🌸 荷花主题</h3>
-                    <p class="theme-desc">荷花在中国文化中象征纯洁和高雅，是螺钿工艺中常见的题材。创作时可以使用粉色、白色的螺片表现花瓣，绿色表现荷叶，金色勾边增添华丽感。荷花主题的作品常被用于装饰屏风、首饰盒等。</p>
-                    <div class="theme-elements">
-                        <span class="element-tag">粉色螺片</span>
-                        <span class="element-tag">青色荷叶</span>
-                        <span class="element-tag">金色勾边</span>
-                        <span class="element-tag">水滴装饰</span>
-                    </div>
-                </div>
-                
-                <div id="theme-fish" style="display:none;">
-                    <h3 class="theme-title">🐟 锦鲤主题</h3>
-                    <p class="theme-desc">锦鲤寓意吉祥、富贵，是传统吉祥图案的代表。创作时可以用红色、金色的螺片表现鱼身，黑色点缀眼睛，白色表现水花。锦鲤主题的作品常被认为能带来好运，适合装饰家居用品。</p>
-                    <div class="theme-elements">
-                        <span class="element-tag">红色螺片</span>
-                        <span class="element-tag">金色鱼鳞</span>
-                        <span class="element-tag">水波纹理</span>
-                        <span class="element-tag">吉祥纹样</span>
-                    </div>
-                </div>
-                
-                <div id="theme-bird" style="display:none;">
-                    <h3 class="theme-title">🐦 花鸟主题</h3>
-                    <p class="theme-desc">花鸟题材展现了大自然的生机与美丽。创作时可以用彩色螺片表现鸟的羽毛，用绿色表现枝叶，花朵点缀其间。花鸟主题的螺钿作品充满诗意，常用于装饰书画、屏风等。</p>
-                    <div class="theme-elements">
-                        <span class="element-tag">彩色羽毛</span>
-                        <span class="element-tag">绿叶枝条</span>
-                        <span class="element-tag">花卉点缀</span>
-                        <span class="element-tag">珠光背景</span>
-                    </div>
-                </div>
-                
-                <div id="theme-peony" style="display:none;">
-                    <h3 class="theme-title">🌺 牡丹主题</h3>
-                    <p class="theme-desc">牡丹被誉为"花中之王"，象征富贵荣华。创作时可以用大红色、粉红色的螺片层层叠叠表现花瓣，金色勾边突出华丽感。牡丹主题的作品气势恢宏，常用于装饰大型屏风和贵重器物。</p>
-                    <div class="theme-elements">
-                        <span class="element-tag">大红螺片</span>
-                        <span class="element-tag">层叠花瓣</span>
-                        <span class="element-tag">金色轮廓</span>
-                        <span class="element-tag">富贵纹样</span>
-                    </div>
-                </div>
+            <div class="copy-box" id="submitText"></div>
+            <div class="cta-row">
+              <button class="primary-btn" id="copySubmitBtn">复制报名文案</button>
             </div>
+          </div>
+          <div class="panel pad">
+            <div class="title-row">
+              <div>
+                <h2>Demo 开发路线</h2>
+                <p>用于向评委说明项目不是静态页面，而是可继续扩展的平台型作品。</p>
+              </div>
+            </div>
+            <div class="timeline">
+              <div class="step"><b>第一阶段：可运行交互 Demo</b><span>完成首页、AI 导览、纹样生成、虚拟镶嵌、作品故事和文创预览。</span></div>
+              <div class="step"><b>第二阶段：接入真实大模型</b><span>接入图文生成、知识库问答、作品解读和儿童友好讲解能力。</span></div>
+              <div class="step"><b>第三阶段：课程化与研学化</b><span>把螺钿历史、材料、工艺流程拆成闯关任务，形成青少年美育课程。</span></div>
+              <div class="step"><b>第四阶段：文旅/非遗馆部署</b><span>支持大屏互动、扫码带走作品、馆内展陈导览和文创商品转化。</span></div>
+            </div>
+            <div class="hint">Trae 提示词建议：请基于当前 HTML Demo 继续开发，接入 AI 对话接口、图片生成接口、用户作品库、分享海报导出和后台素材管理功能。</div>
+          </div>
         </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- 价值意义 -->
-    <section id="values" class="section">
-        <h2 class="section-title">💎 价值意义</h2>
-        
-        <div class="value-grid">
-            <div class="value-card">
-                <div class="value-icon">🏛️</div>
-                <h3 class="value-title">社会价值</h3>
-                <p class="value-desc">传承中华优秀传统文化，让非遗技艺焕发新生，促进文化创新性转化和创造性发展。</p>
-            </div>
-            
-            <div class="value-card">
-                <div class="value-icon">📚</div>
-                <h3 class="value-title">教育价值</h3>
-                <p class="value-desc">培养青少年的审美能力、动手能力和文化素养，让传统文化教育更有趣、更有效。</p>
-            </div>
-            
-            <div class="value-card">
-                <div class="value-icon">💡</div>
-                <h3 class="value-title">应用价值</h3>
-                <p class="value-desc">为博物馆、学校、文旅机构提供数字化互动解决方案，丰富文化体验形式。</p>
-            </div>
-        </div>
-    </section>
+    <div class="footer-note">螺光工坊 Demo ｜ 单文件 HTML/CSS/JS，可直接本地打开运行。</div>
+  </div>
+  <div class="toast" id="toast">已完成</div>
 
-    <!-- 报名帖摘要 -->
-    <section class="section">
-        <h2 class="section-title">📝 报名帖摘要</h2>
-        
-        <div class="summary-box">
-            <span class="summary-label">复制这段文字用于报名帖</span>
-            <div class="summary-text">
-                <strong>【项目名称】</strong>螺光工坊：AI非遗螺钿互动创作平台<br><br>
-                <strong>【参赛赛道】</strong>社会服务 | 社会公益方向<br><br>
-                <strong>【项目简介】</strong>螺光工坊是一个面向小学生和青少年的AI非遗螺钿互动创作平台。我们致力于将传统螺钿工艺从"只能观看的展览内容"变成"可以学习、可以创作、可以分享"的数字互动体验。通过虚拟螺片镶嵌、AI智能导览、作品故事生成等功能，让孩子们从"看非遗"变成"做非遗"。<br><br>
-                <strong>【核心功能】</strong>
-                1. AI智能导览 - 语音讲解螺钿历史与工艺<br>
-                2. 虚拟螺片镶嵌 - 拖拽创作，AI配色建议<br>
-                3. 作品故事生成 - 为每件作品赋予文化内涵<br>
-                4. 文创预览 - 将作品应用到各类文创产品<br><br>
-                <strong>【目标用户】</strong>小学生、美育教师、非遗馆/博物馆观众、亲子家庭、文旅研学用户<br><br>
-                <strong>【项目价值】</strong>
-                - 社会价值：传承中华优秀传统文化，促进非遗创新性转化<br>
-                - 教育价值：培养青少年审美能力和文化素养<br>
-                - 应用价值：为文化机构提供数字化互动解决方案
-            </div>
-        </div>
-    </section>
+  <script>
+    const state = {
+      section: 'home',
+      selectedChip: 0,
+      fragments: [],
+      theme: '月下荷花与锦鲤',
+      patternType: 'lotus',
+      baseShape: 'plate',
+      drag: null,
+      lastStory: ''
+    };
 
-    <!-- 页脚 -->
-    <footer class="footer">
-        <p class="footer-text">螺光工坊 - 让非遗文化触手可及</p>
-        <span class="footer-badge">TRAE AI 创造力大赛参赛项目</span>
-    </footer>
+    const chips = [
+      { name: '月白贝', colors: ['#e9fbff', '#8be3ff', '#ffd8f4', '#fff3a8'], rotate: '-18deg' },
+      { name: '虹彩贝', colors: ['#6ad7ff', '#ff91d8', '#f4d27b', '#91f2c3'], rotate: '18deg' },
+      { name: '青金贝', colors: ['#b9f7ff', '#2ea8ff', '#9a7cff', '#eaf8ff'], rotate: '32deg' },
+      { name: '桃粉贝', colors: ['#fff4fa', '#ff91d8', '#ffd2a8', '#96f0ff'], rotate: '-32deg' },
+      { name: '金砂贝', colors: ['#fff8c7', '#f4d27b', '#ffffff', '#ffb36b'], rotate: '8deg' },
+      { name: '孔雀贝', colors: ['#92ffd2', '#6ad7ff', '#536dff', '#f8ffbd'], rotate: '-8deg' },
+      { name: '紫霞贝', colors: ['#f0e6ff', '#c3a7ff', '#ff91d8', '#8ee9ff'], rotate: '42deg' },
+      { name: '海雾贝', colors: ['#ffffff', '#b8f1ff', '#b7ffd5', '#e8e5ff'], rotate: '-42deg' },
+      { name: '晨曦贝', colors: ['#fff0a4', '#ffb9e9', '#ffffff', '#83e6ff'], rotate: '0deg' }
+    ];
 
-    <!-- JavaScript -->
-    <script>
-        // 主题切换交互
-        const themeTabs = document.querySelectorAll('.theme-tab');
-        const themeItems = document.querySelectorAll('.theme-item');
-        
-        themeTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // 移除所有active状态
-                themeTabs.forEach(t => t.classList.remove('active'));
-                themeItems.forEach(item => item.style.display = 'none');
-                
-                // 添加当前active状态
-                tab.classList.add('active');
-                const themeId = 'theme-' + tab.dataset.theme;
-                document.getElementById(themeId).style.display = 'block';
-            });
+    const inspirations = [
+      ['月下荷花与锦鲤', 'lotus', 'plate'],
+      ['凤凰从祥云中飞起', 'phoenix', 'fan'],
+      ['北京中轴线与山河月色', 'mountain', 'box'],
+      ['写给妈妈的螺光书签', 'free', 'bookmark'],
+      ['敦煌飞天的彩色飘带', 'phoenix', 'fan'],
+      ['小学生心中的海底星河', 'free', 'plate']
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const svgNS = 'http://www.w3.org/2000/svg';
+
+    function showToast(text) {
+      const toast = $('toast');
+      toast.textContent = text;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function switchSection(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === id));
+      document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+      state.section = id;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (id === 'story') refreshPoster();
+      if (id === 'submit') fillSubmitText();
+    }
+
+    function initNav() {
+      document.querySelectorAll('.nav button').forEach(btn => {
+        btn.addEventListener('click', () => switchSection(btn.dataset.section));
+      });
+      document.querySelectorAll('[data-jump]').forEach(btn => {
+        btn.addEventListener('click', () => switchSection(btn.dataset.jump));
+      });
+    }
+
+    function initChips() {
+      const grid = $('chipGrid');
+      grid.innerHTML = '';
+      chips.forEach((chip, idx) => {
+        const el = document.createElement('button');
+        el.className = 'chip' + (idx === state.selectedChip ? ' active' : '');
+        el.style.setProperty('--c1', chip.colors[0]);
+        el.style.setProperty('--c2', chip.colors[1]);
+        el.style.setProperty('--c3', chip.colors[2]);
+        el.style.setProperty('--c4', chip.colors[3]);
+        el.style.setProperty('--r', chip.rotate);
+        el.innerHTML = `<span>${chip.name}</span>`;
+        el.addEventListener('click', () => {
+          state.selectedChip = idx;
+          initChips();
         });
-        
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // 导航栏滚动效果
-        window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.style.background = 'linear-gradient(90deg, rgba(255,183,197,0.95) 0%, rgba(135,206,235,0.95) 100%)';
-            } else {
-                navbar.style.background = 'linear-gradient(90deg, rgba(255,183,197,0.8) 0%, rgba(135,206,235,0.8) 100%)';
-            }
-        });
-        
-        // 复制报名帖摘要功能
-        const summaryText = document.querySelector('.summary-text');
-        summaryText.addEventListener('click', () => {
-            const text = summaryText.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('已复制到剪贴板！');
-            }).catch(err => {
-                console.error('复制失败:', err);
-            });
-        });
-    </script>
+        grid.appendChild(el);
+      });
+    }
+
+    function svgEl(tag, attrs = {}) {
+      const el = document.createElementNS(svgNS, tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      return el;
+    }
+
+    function clearLayer(id) { $(id).innerHTML = ''; }
+
+    function drawBase() {
+      const layer = $('baseLayer');
+      layer.innerHTML = '';
+      const shape = state.baseShape;
+
+      if (shape === 'plate') {
+        layer.appendChild(svgEl('circle', { cx: 380, cy: 380, r: 330, fill: 'url(#lacquerBg)', stroke: 'rgba(244,210,123,.48)', 'stroke-width': 4 }));
+        layer.appendChild(svgEl('circle', { cx: 380, cy: 380, r: 292, fill: 'none', stroke: 'url(#goldLine)', 'stroke-width': 2 }));
+        layer.appendChild(svgEl('circle', { cx: 380, cy: 380, r: 245, fill: 'none', stroke: 'rgba(255,255,255,.08)', 'stroke-width': 1 }));
+      } else if (shape === 'fan') {
+        layer.appendChild(svgEl('path', { d: 'M145 575 Q380 110 615 575 Q380 655 145 575Z', fill: 'url(#lacquerBg)', stroke: 'rgba(244,210,123,.48)', 'stroke-width': 4 }));
+        for (let i = 0; i < 11; i++) {
+          const x = 170 + i * 42;
+          layer.appendChild(svgEl('path', { d: `M380 628 Q${x} 360 ${380 + (x-380)*0.62} 145`, stroke: 'rgba(244,210,123,.13)', 'stroke-width': 1.2, fill: 'none' }));
+        }
+      } else if (shape === 'box') {
+        layer.appendChild(svgEl('rect', { x: 115, y: 190, width: 530, height: 380, rx: 48, fill: 'url(#lacquerBg)', stroke: 'rgba(244,210,123,.48)', 'stroke-width': 4 }));
+        layer.appendChild(svgEl('rect', { x: 150, y: 225, width: 460, height: 310, rx: 36, fill: 'none', stroke: 'url(#goldLine)', 'stroke-width': 2 }));
+      } else {
+        layer.appendChild(svgEl('path', { d: 'M285 80 H475 Q500 80 500 105 V640 L380 704 L260 640 V105 Q260 80 285 80Z', fill: 'url(#lacquerBg)', stroke: 'rgba(244,210,123,.48)', 'stroke-width': 4 }));
+        layer.appendChild(svgEl('circle', { cx: 380, cy: 122, r: 18, fill: 'none', stroke: 'rgba(244,210,123,.45)', 'stroke-width': 3 }));
+      }
+
+      const shine = svgEl('path', { d: 'M178 180 C258 98 420 80 560 150', stroke: 'rgba(255,255,255,.10)', 'stroke-width': 18, fill: 'none', 'stroke-linecap': 'round' });
+      layer.appendChild(shine);
+    }
+
+    function drawPattern() {
+      clearLayer('patternLayer');
+      clearLayer('labelLayer');
+      const layer = $('patternLayer');
+      const label = $('labelLayer');
+      const type = state.patternType;
+      const theme = state.theme || '我的螺钿作品';
+
+      if (type === 'lotus') {
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M166 492 C245 420 316 425 382 494 C445 555 532 554 606 488' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M195 540 C306 498 444 501 566 538' }));
+        for (let i = 0; i < 8; i++) {
+          const angle = (Math.PI * 2 / 8) * i - Math.PI / 2;
+          const x = 380 + Math.cos(angle) * 52;
+          const y = 340 + Math.sin(angle) * 28;
+          layer.appendChild(svgEl('ellipse', { cx: x, cy: y, rx: 34, ry: 78, transform: `rotate(${i*45} ${x} ${y})`, fill: 'none', stroke: 'rgba(244,210,123,.46)', 'stroke-width': 2 }));
+        }
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M455 466 C492 410 560 412 590 452 C548 444 514 461 492 498 C486 482 472 472 455 466Z' }));
+        layer.appendChild(svgEl('circle', { cx: 570, cy: 446, r: 5, fill: 'rgba(244,210,123,.7)' }));
+      } else if (type === 'phoenix') {
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M225 488 C322 332 442 260 570 218 C523 286 488 355 472 438' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M290 472 C360 542 460 572 575 546' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M310 500 C372 635 505 660 625 610' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M405 335 C374 302 333 294 284 312 C338 342 376 356 405 335Z' }));
+        for (let i = 0; i < 5; i++) {
+          layer.appendChild(svgEl('path', { class: 'pattern-line', d: `M170 ${260+i*52} C235 ${220+i*42} 298 ${225+i*22} 345 ${270+i*38}` }));
+        }
+      } else if (type === 'mountain') {
+        layer.appendChild(svgEl('circle', { cx: 520, cy: 220, r: 54, fill: 'none', stroke: 'rgba(244,210,123,.5)', 'stroke-width': 2.2 }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M140 520 L245 365 L340 508 L425 332 L602 520 Z' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M168 570 C270 530 355 536 430 572 C504 605 580 604 650 558' }));
+        layer.appendChild(svgEl('path', { class: 'pattern-line', d: 'M180 610 C280 582 468 588 590 625' }));
+        for (let i = 0; i < 22; i++) {
+          const x = 142 + i * 22;
+          const y = 178 + ((i * 17) % 95);
+          layer.appendChild(svgEl('circle', { cx: x, cy: y, r: 2.2, fill: 'rgba(255,255,255,.45)' }));
+        }
+      } else {
+        for (let i = 0; i < 9; i++) {
+          const y = 170 + i * 45;
+          const offset = i % 2 ? 50 : 0;
+          layer.appendChild(svgEl('path', { class: 'pattern-line', d: `M150 ${y} C260 ${y-60+offset} 405 ${y+70-offset} 610 ${y-20}` }));
+        }
+        layer.appendChild(svgEl('circle', { cx: 380, cy: 382, r: 116, fill: 'none', stroke: 'rgba(244,210,123,.42)', 'stroke-width': 2, 'stroke-dasharray': '4 10' }));
+      }
+
+      const text = svgEl('text', { x: 380, y: 705, 'text-anchor': 'middle', fill: 'rgba(244,210,123,.8)', 'font-size': 24, 'font-weight': 800, 'letter-spacing': 3 });
+      text.textContent = theme.slice(0, 18);
+      label.appendChild(text);
+    }
+
+    function makeGradient(id, chip) {
+      const defs = $('svgDefs');
+      const old = document.getElementById(id);
+      if (old) old.remove();
+      const grad = svgEl('linearGradient', { id, x1: '0%', y1: '0%', x2: '100%', y2: '100%' });
+      chip.colors.forEach((c, i) => {
+        grad.appendChild(svgEl('stop', { offset: `${i * 33}%`, 'stop-color': c }));
+      });
+      defs.appendChild(grad);
+    }
+
+    function fragmentPath(size) {
+      const w = size;
+      const h = size * (0.38 + Math.random() * 0.28);
+      return `M${-w/2} 0 C${-w*0.34} ${-h*0.58} ${w*0.16} ${-h*0.72} ${w/2} ${-h*0.1} C${w*0.34} ${h*0.48} ${-w*0.18} ${h*0.62} ${-w/2} 0Z`;
+    }
+
+    function addFragment(x, y, chipIndex = state.selectedChip, size = 58, angle = Math.random() * 360) {
+      const chip = chips[chipIndex];
+      const id = `shellGrad_${Date.now()}_${Math.floor(Math.random() * 9999)}`;
+      makeGradient(id, chip);
+      const fragId = `frag_${Date.now()}_${Math.floor(Math.random() * 9999)}`;
+      const g = svgEl('g', { class: 'fragment', id: fragId, transform: `translate(${x} ${y}) rotate(${angle})`, 'data-x': x, 'data-y': y, 'data-r': angle });
+      const path = svgEl('path', { d: fragmentPath(size), fill: `url(#${id})`, stroke: 'rgba(255,255,255,.72)', 'stroke-width': 1.1, filter: 'url(#softGlow)' });
+      const vein = svgEl('path', { d: `M${-size*0.32} 0 C${-size*0.1} ${-size*0.08} ${size*0.2} ${size*0.08} ${size*0.36} ${-size*0.04}`, stroke: 'rgba(255,255,255,.45)', 'stroke-width': 1, fill: 'none' });
+      g.appendChild(path);
+      g.appendChild(vein);
+      $('fragmentLayer').appendChild(g);
+      state.fragments.push({ id: fragId, x, y, chipIndex, size, angle });
+      bindFragmentDrag(g);
+      return g;
+    }
+
+    function autoInlay(count = 26) {
+      const type = state.patternType;
+      const points = [];
+      if (type === 'lotus') {
+        for (let i = 0; i < 10; i++) points.push([380 + Math.cos(i/10*Math.PI*2) * (34 + i%2*38), 340 + Math.sin(i/10*Math.PI*2) * (26 + i%2*28)]);
+        for (let i = 0; i < 10; i++) points.push([185 + i*44, 498 + Math.sin(i)*34]);
+        points.push([520, 458], [558, 442], [487, 488], [420, 496], [335, 500], [270, 480]);
+      } else if (type === 'phoenix') {
+        for (let i = 0; i < 12; i++) points.push([230 + i*30, 486 - Math.sin(i/11*Math.PI)*188]);
+        for (let i = 0; i < 10; i++) points.push([310 + i*32, 490 + Math.sin(i)*54 + i*6]);
+        points.push([285, 310], [335, 328], [402, 338], [520, 238]);
+      } else if (type === 'mountain') {
+        for (let i = 0; i < 11; i++) points.push([165 + i*44, 520 - Math.abs(Math.sin(i/10*Math.PI*2))*130]);
+        for (let i = 0; i < 10; i++) points.push([165 + i*48, 575 + Math.sin(i)*22]);
+        points.push([520, 220], [500, 198], [540, 244], [380, 170]);
+      } else {
+        for (let i = 0; i < count; i++) {
+          const t = i / count * Math.PI * 2;
+          points.push([380 + Math.cos(t) * (80 + Math.sin(i)*110), 380 + Math.sin(t) * (80 + Math.cos(i*1.7)*110)]);
+        }
+      }
+      points.slice(0, count).forEach((p, i) => {
+        const jitterX = (Math.random() - 0.5) * 24;
+        const jitterY = (Math.random() - 0.5) * 24;
+        addFragment(p[0] + jitterX, p[1] + jitterY, i % chips.length, 44 + Math.random()*28, Math.random()*360);
+      });
+      showToast('AI 已完成自动镶嵌，可继续拖动调整');
+    }
+
+    function getSvgPoint(evt) {
+      const svg = $('artSvg');
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function bindCanvasClick() {
+      $('artSvg').addEventListener('click', (evt) => {
+        if (state.drag || evt.target.closest('.fragment')) return;
+        const p = getSvgPoint(evt);
+        addFragment(p.x, p.y, state.selectedChip, 48 + Math.random()*18, Math.random()*360);
+      });
+    }
+
+    function bindFragmentDrag(g) {
+      g.addEventListener('pointerdown', (evt) => {
+        evt.stopPropagation();
+        const p = getSvgPoint(evt);
+        state.drag = {
+          id: g.id,
+          startX: p.x,
+          startY: p.y,
+          ox: Number(g.dataset.x),
+          oy: Number(g.dataset.y),
+          r: Number(g.dataset.r)
+        };
+        g.setPointerCapture(evt.pointerId);
+      });
+      g.addEventListener('pointermove', (evt) => {
+        if (!state.drag || state.drag.id !== g.id) return;
+        const p = getSvgPoint(evt);
+        const nx = state.drag.ox + p.x - state.drag.startX;
+        const ny = state.drag.oy + p.y - state.drag.startY;
+        g.dataset.x = nx;
+        g.dataset.y = ny;
+        g.setAttribute('transform', `translate(${nx} ${ny}) rotate(${state.drag.r})`);
+        const item = state.fragments.find(f => f.id === g.id);
+        if (item) { item.x = nx; item.y = ny; }
+      });
+      g.addEventListener('pointerup', () => { state.drag = null; });
+      g.addEventListener('pointercancel', () => { state.drag = null; });
+    }
+
+    function rebuildArt() {
+      state.theme = $('userTheme').value.trim() || '我的螺钿作品';
+      state.patternType = $('patternType').value;
+      state.baseShape = $('baseShape').value;
+      drawBase();
+      drawPattern();
+    }
+
+    function clearFragments() {
+      clearLayer('fragmentLayer');
+      state.fragments = [];
+    }
+
+    function initCreatorEvents() {
+      $('generatePatternBtn').addEventListener('click', () => {
+        rebuildArt();
+        clearFragments();
+        showToast('纹样已生成，开始镶嵌吧');
+      });
+      $('randomBtn').addEventListener('click', () => {
+        const item = inspirations[Math.floor(Math.random() * inspirations.length)];
+        $('userTheme').value = item[0];
+        $('patternType').value = item[1];
+        $('baseShape').value = item[2];
+        rebuildArt();
+        clearFragments();
+        showToast('已生成随机灵感');
+      });
+      $('autoInlayBtn').addEventListener('click', () => autoInlay(30));
+      $('undoBtn').addEventListener('click', () => {
+        const last = state.fragments.pop();
+        if (last) {
+          const el = document.getElementById(last.id);
+          if (el) el.remove();
+          showToast('已撤销一片贝片');
+        }
+      });
+      $('clearFragmentsBtn').addEventListener('click', () => {
+        clearFragments();
+        showToast('已清空贝片');
+      });
+    }
+
+    function explain(question, mode) {
+      const q = question || '什么是螺钿？';
+      const prefix = {
+        child: '用适合 10 岁小学生的话来说，',
+        tourist: '作为非遗馆导览，',
+        teacher: '从美育课程设计角度，'
+      }[mode];
+      let body = '';
+      if (/流程|制作|怎么做|工艺/.test(q)) {
+        body = '螺钿创作可以拆成六步：先设计纹样，再选择贝壳材料；随后把贝片切割成需要的形状，按照线稿进行拼贴镶嵌；之后上漆固定，最后通过打磨和抛光让贝片与底面齐平，呈现出像月光、水波一样的流光。';
+      } else if (/发光|彩色|流光|贝壳/.test(q)) {
+        body = '贝壳内层有珍珠质，微小结构会让光发生反射和干涉，所以从不同角度看，会出现蓝、绿、粉、金等变化。螺钿正是利用这种自然光泽，把材料本身变成图案的颜色。';
+      } else if (/文创|产品|转化|商业/.test(q)) {
+        body = '螺钿的图案很适合转化为书签、团扇、手机壳、首饰盒、冰箱贴和数字藏品。AI 平台可以帮助用户先完成数字设计，再把设计应用到文创载体上，形成“体验—作品—传播—转化”的闭环。';
+      } else if (/历史|来源|非遗/.test(q)) {
+        body = '螺钿是中国传统漆艺中的重要装饰工艺，常见于漆盒、屏风、家具和器物表面。它把贝壳切成薄片后镶嵌在底面上，形成细腻、华丽、会随光线变化的装饰效果。';
+      } else {
+        body = '螺钿是一种把贝壳、螺片等天然材料镶嵌到漆器或其他器物表面的传统工艺。它的特别之处在于材料本身会反光、变色，因此很适合做成可互动、可创作、可分享的数字非遗体验。';
+      }
+      const extra = {
+        child: '你可以把它想象成“用会发光的小贝壳拼贴画”。在这个 Demo 里，你可以像玩拼图一样完成自己的螺钿作品。',
+        tourist: '参观时不要只看图案，还可以观察贝片的方向、底色和光泽变化，这些共同决定了作品的高级感。',
+        teacher: '课程可设计为“认知材料—理解工艺—生成纹样—虚拟镶嵌—讲述作品”的项目式学习。'
+      }[mode];
+      return `${prefix}${body}\n\n${extra}`;
+    }
+
+    function appendMessage(role, text) {
+      const box = $('chatBox');
+      const msg = document.createElement('div');
+      msg.className = 'message';
+      msg.innerHTML = `<div class="avatar">${role}</div><div class="bubble">${text.replace(/\n/g, '<br>')}</div>`;
+      box.appendChild(msg);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function initGuide() {
+      document.querySelectorAll('.quick-questions button').forEach(btn => {
+        btn.addEventListener('click', () => $('guideQuestion').value = btn.dataset.q);
+      });
+      $('askBtn').addEventListener('click', () => {
+        const q = $('guideQuestion').value.trim() || '什么是螺钿？';
+        appendMessage('你', q);
+        setTimeout(() => appendMessage('AI', explain(q, $('audienceMode').value)), 180);
+      });
+      $('clearChatBtn').addEventListener('click', () => {
+        $('chatBox').innerHTML = '<div class="message"><div class="avatar">AI</div><div class="bubble"><strong>对话已清空。</strong><br>继续输入问题，我会重新讲解螺钿知识。</div></div>';
+      });
+    }
+
+    function serializeArtwork() {
+      const svg = $('artSvg').cloneNode(true);
+      svg.setAttribute('xmlns', svgNS);
+      svg.setAttribute('width', '900');
+      svg.setAttribute('height', '900');
+      return new XMLSerializer().serializeToString(svg);
+    }
+
+    function refreshPoster() {
+      const posterArt = $('posterArt');
+      posterArt.innerHTML = serializeArtwork();
+      const theme = state.theme || $('userTheme').value || '月下螺光';
+      const typeName = $('patternType')?.selectedOptions?.[0]?.textContent || '螺钿纹样';
+      const creator = $('storyName')?.value || '小小非遗设计师';
+      const intent = $('storyIntent')?.value || '希望传统文化继续闪耀。';
+      const title = `《${theme.replace(/[，。,.]/g, '').slice(0, 8)}》`;
+      const desc = `${creator}以“${typeName}”为视觉灵感，在黑漆底色上镶嵌虹彩贝片。作品把${intent.replace(/\n/g, '')} 转化为可观看、可互动、可分享的数字螺钿体验。`;
+      $('posterTitle').textContent = title;
+      $('posterDesc').textContent = desc;
+      state.lastStory = `作品名称：${title}\n创作者：${creator}\n主题关键词：${theme}\n纹样类型：${typeName}\n作品说明：${desc}\n\n非遗知识卡：螺钿是以贝壳、螺片等天然材料进行镶嵌装饰的传统工艺。数字化创作可以降低体验门槛，让青少年先理解材料与工艺，再用 AI 和交互方式完成自己的非遗作品。`;
+      $('storyText').textContent = state.lastStory;
+    }
+
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) {}
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      area.remove();
+      return ok;
+    }
+
+    function download(filename, text, type='text/plain') {
+      const blob = new Blob([text], { type });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 200);
+    }
+
+    function initStory() {
+      $('makeStoryBtn').addEventListener('click', () => {
+        refreshPoster();
+        showToast('作品海报已生成');
+      });
+      $('copyStoryBtn').addEventListener('click', async () => {
+        refreshPoster();
+        const ok = await copyText(state.lastStory);
+        showToast(ok ? '作品文案已复制' : '复制失败，可手动选中文案复制');
+      });
+      $('downloadSvgBtn').addEventListener('click', () => {
+        download('螺光工坊-数字螺钿作品.svg', serializeArtwork(), 'image/svg+xml;charset=utf-8');
+      });
+    }
+
+    function fillSubmitText() {
+      const text = `【创意名称】\n螺光工坊：AI 非遗螺钿互动创作平台\n\n【选择赛道】\n社会服务赛道，可叠加社会公益附加赛题。\n\n【一句话介绍】\n螺光工坊用 AI 把非遗螺钿从“只能观看的传统工艺”变成“人人可学习、可创作、可分享、可转化”的数字互动体验。\n\n【想解决的问题】\n传统非遗传播常停留在图文科普和线下展示，青少年很难理解制作流程，也缺少亲手体验的机会。螺钿虽然视觉美感强，但真实材料和工艺门槛较高，难以大规模进入学校美育、文旅研学和线上传播场景。\n\n【核心功能】\n1. AI 非遗导览：按儿童、游客、老师三种口吻讲解螺钿知识。\n2. 螺钿纹样生成：根据关键词生成荷花锦鲤、凤凰祥云、月下山河等风格线稿。\n3. 虚拟镶嵌工坊：选择贝片光泽，点击/拖拽完成数字螺钿创作。\n4. 作品故事生成：自动生成作品名称、寓意说明和非遗知识卡。\n5. 文创应用预览：把作品预览到书签、团扇、手机壳、首饰盒等产品上。\n\n【目标用户】\n青少年学生、非遗馆/博物馆观众、文旅研学用户、手作爱好者、文创设计者和美育课程教师。\n\n【创新价值】\n项目不是简单做非遗介绍网页，而是把“知识讲解、纹样生成、虚拟手作、故事表达、文创转化”串成完整闭环，让传统工艺通过 AI 和交互体验重新被年轻人理解和传播。\n\n【初赛 Demo 说明】\n当前版本为单文件 HTML/CSS/JS 可运行 Demo，已完成首页、AI 导览模拟、纹样生成、虚拟镶嵌、作品故事和文创预览。后续可接入大模型 API、图像生成 API、作品库、海报导出和非遗课程后台。`;
+      $('submitText').textContent = text;
+    }
+
+    function initSubmit() {
+      $('copySubmitBtn').addEventListener('click', async () => {
+        fillSubmitText();
+        const ok = await copyText($('submitText').textContent);
+        showToast(ok ? '报名文案已复制' : '复制失败，可手动选中文案复制');
+      });
+    }
+
+    function init() {
+      initNav();
+      initChips();
+      bindCanvasClick();
+      initCreatorEvents();
+      initGuide();
+      initStory();
+      initSubmit();
+      rebuildArt();
+      autoInlay(18);
+      refreshPoster();
+      fillSubmitText();
+    }
+
+    init();
+  </script>
 </body>
 </html>

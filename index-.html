@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>螺光工坊 - AI非遗螺钿互动创作平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(180deg, #FFF8F0 0%, #FFFBF5 50%, #F0F8FF 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        :root {
+            --gold: #D4AF37; --gold-light: #F4E4BC; --pink: #FFB7C5; 
+            --pink-dark: #FF69B4; --light-blue: #87CEEB; --sea-green: #20B2AA;
+            --cream: #FFF8F0; --coral: #FF7F50; --purple: #9B59B6;
+            --sky-blue: #5DADE2; --deep-green: #2E8B57;
+        }
+        .navbar {
+            background: linear-gradient(90deg, rgba(255,183,197,0.9) 0%, rgba(135,206,235,0.9) 50%, rgba(255,183,197,0.9) 100%);
+            backdrop-filter: blur(15px);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 12px 20px;
+            box-shadow: 0 4px 20px rgba(255,183,197,0.3);
+        }
+        .navbar-content {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-circle {
+            width: 45px; height: 45px;
+            background: radial-gradient(circle at 30% 30%, #FFB7C5, #87CEEB, #FFD700);
+            border-radius: 50%; border: 3px solid var(--gold);
+            box-shadow: 0 4px 15px rgba(212,175,55,0.4);
+        }
+        .logo-circle::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 22px; height: 22px;
+            background: radial-gradient(circle at 30% 30%, #FFF, #FFB7C5, #87CEEB);
+            border-radius: 50%; box-shadow: inset 0 2px 5px rgba(255,255,255,0.8);
+        }
+        .logo-text {
+            font-size: 22px; font-weight: bold;
+            background: linear-gradient(90deg, #D4AF37, #FF7F50, #9B59B6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-links { display: flex; gap: 15px; }
+        .nav-links a {
+            text-decoration: none; color: #555; font-weight: 500;
+            padding: 10px 20px; border-radius: 25px;
+            background: rgba(255,255,255,0.6);
+            transition: all 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.9); color: #FF7F50;
+            transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,183,197,0.4);
+        }
+        .hero {
+            padding: 130px 20px 80px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -150px; right: -150px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,183,197,0.35) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: -100px; left: -100px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(135,206,235,0.35) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .track-badges {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 12px; margin-bottom: 25px;
+        }
+        .track-badge {
+            display: inline-block; padding: 10px 24px; border-radius: 25px;
+            font-size: 14px; font-weight: 600; color: white;
+            box-shadow: 0 4px 15px rgba(155,89,182,0.4);
+            background: linear-gradient(135deg, #9B59B6 0%, #E74C3C 100%);
+        }
+        .track-badge.pink { background: linear-gradient(135deg, #FF69B4 0%, #FF7F50 100%); }
+        .track-badge.blue { background: linear-gradient(135deg, #5DADE2 0%, #20B2AA 100%); }
+        .track-badge.green { background: linear-gradient(135deg, #20B2AA 0%, #3CB371 100%); }
+        .hero-title {
+            font-size: 56px; font-weight: bold; margin-bottom: 15px;
+            background: linear-gradient(135deg, #D4AF37 0%, #FF7F50 30%, #FF69B4 60%, #9B59B6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 6px 30px rgba(212,175,55,0.4);
+        }
+        .hero-subtitle { font-size: 22px; color: #666; margin-bottom: 15px; }
+        .hero-slogan {
+            font-size: 28px; color: #FF7F50; font-weight: bold;
+            margin-bottom: 45px; text-shadow: 0 2px 10px rgba(255,127,80,0.3);
+        }
+        .hero-btn {
+            display: inline-block; padding: 18px 50px; border-radius: 35px;
+            font-size: 20px; font-weight: 600; color: white; text-decoration: none;
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 50%, #FFB7C5 100%);
+            background-size: 200% 100%;
+            border: 2px solid rgba(212,175,55,0.6);
+            box-shadow: 0 8px 25px rgba(135,206,235,0.5);
+            animation: gradient-shift 3s ease infinite;
+        }
+        @keyframes gradient-shift { 0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+        .hero-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(135,206,235,0.7); }
+        .luodian-visual {
+            margin-top: 50px; width: 100%; max-width: 700px;
+            margin-left: auto; margin-right: auto;
+        }
+        .examples-section {
+            padding: 60px 20px;
+            background: linear-gradient(180deg, #FFF8F0 0%, #FFF 100%);
+        }
+        .examples-title {
+            text-align: center; font-size: 36px; font-weight: bold; margin-bottom: 50px;
+            background: linear-gradient(90deg, #20B2AA 0%, #5DADE2 50%, #FF69B4 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .examples-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px; max-width: 1400px; margin: 0 auto;
+        }
+        .example-card {
+            background: white; border-radius: 25px; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            border: 3px solid transparent; transition: all 0.4s;
+        }
+        .example-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+            border-color: rgba(212,175,55,0.4);
+        }
+        .example-preview {
+            height: 280px; background: linear-gradient(135deg, #FFF8F0 0%, #FFE4E9 30%, #E0F4FF 70%, #FFF8F0 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .example-title { padding: 25px 30px 15px; font-size: 22px; font-weight: bold; color: #333; text-align: center; }
+        .example-desc { padding: 0 30px 25px; font-size: 14px; color: #666; text-align: center; line-height: 1.6; }
+        .example-btn {
+            display: block; margin: 0 30px 30px; padding: 14px;
+            background: linear-gradient(135deg, rgba(255,183,197,0.8) 0%, rgba(135,206,235,0.8) 100%);
+            color: white; text-align: center; border-radius: 25px;
+            font-weight: 600; text-decoration: none;
+            border: 2px solid rgba(212,175,55,0.4);
+            transition: all 0.3s;
+        }
+        .example-btn:hover {
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
+            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(135,206,235,0.4);
+        }
+        .wenchuang-section {
+            padding: 60px 20px;
+            background: linear-gradient(180deg, #FFF 0%, #F0F8FF 100%);
+        }
+        .wenchuang-title {
+            text-align: center; font-size: 36px; font-weight: bold; margin-bottom: 50px;
+            background: linear-gradient(90deg, #9B59B6 0%, #FF7F50 50%, #20B2AA 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .wenchuang-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px; max-width: 1400px; margin: 0 auto;
+        }
+        .wenchuang-card {
+            background: white; border-radius: 25px; overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            border-top: 4px solid var(--gold); transition: all 0.4s;
+        }
+        .wenchuang-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+        .wenchuang-preview {
+            height: 200px; background: linear-gradient(135deg, #FFF8F0 0%, #FFE4E9 50%, #E0F4FF 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wenchuang-name { padding: 20px 25px 10px; font-size: 18px; font-weight: bold; color: #333; text-align: center; }
+        .wenchuang-desc {
+            padding: 12px 25px 20px; font-size: 13px; color: #888; text-align: center;
+            background: rgba(212,175,55,0.08); margin: 0 20px 20px; border-radius: 12px;
+        }
+        .showcase-section {
+            padding: 60px 20px;
+            background: linear-gradient(180deg, #F0F8FF 0%, #FFF8F0 100%);
+        }
+        .showcase-container {
+            max-width: 1000px; margin: 0 auto;
+            background: white; border-radius: 30px; padding: 45px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            border: 3px solid rgba(212,175,55,0.2);
+        }
+        .showcase-title {
+            text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 40px;
+            background: linear-gradient(90deg, #D4AF37 0%, #FF7F50 50%, #9B59B6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .showcase-section-title {
+            font-size: 22px; font-weight: bold; color: #333; margin-bottom: 15px;
+            padding-left: 15px; border-left: 4px solid var(--gold);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .showcase-content {
+            font-size: 16px; color: #555; line-height: 1.8; margin-bottom: 30px;
+            padding: 20px; background: rgba(255,183,197,0.08); border-radius: 15px;
+        }
+        .showcase-list { list-style: none; padding: 0; }
+        .showcase-list li {
+            padding: 12px 20px; background: rgba(135,206,235,0.1);
+            margin-bottom: 10px; border-radius: 10px; font-size: 15px; color: #555;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .showcase-list li::before { content: '✦'; color: var(--gold); font-weight: bold; }
+        .checklist-section {
+            padding: 60px 20px;
+            background: linear-gradient(180deg, #FFF8F0 0%, #FFE4E9 100%);
+        }
+        .checklist-container {
+            max-width: 800px; margin: 0 auto;
+            background: white; border-radius: 25px; padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        .checklist-title {
+            text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 35px;
+            background: linear-gradient(90deg, #FF69B4 0%, #FF7F50 50%, #D4AF37 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .checklist { list-style: none; padding: 0; }
+        .checklist-item {
+            display: flex; align-items: flex-start; gap: 15px;
+            padding: 18px 20px; margin-bottom: 12px;
+            background: rgba(255,183,197,0.08); border-radius: 15px;
+            transition: all 0.3s;
+        }
+        .checklist-item:hover { background: rgba(255,183,197,0.15); transform: translateX(5px); }
+        .checklist-checkbox {
+            width: 24px; height: 24px; border: 3px solid var(--gold);
+            border-radius: 6px; flex-shrink: 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        .checklist-checkbox:hover { background: rgba(212,175,55,0.2); }
+        .checklist-checkbox.checked {
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
+            border-color: transparent;
+        }
+        .checklist-checkbox::after {
+            content: '✓'; color: white; font-weight: bold; font-size: 14px;
+            display: none;
+        }
+        .checklist-checkbox.checked::after { display: block; }
+        .checklist-text { font-size: 16px; color: #444; line-height: 1.5; padding-top: 3px; }
+        .footer {
+            background: linear-gradient(180deg, rgba(135,206,235,0.2) 0%, rgba(255,183,197,0.3) 50%, rgba(212,175,55,0.1) 100%);
+            padding: 50px 20px; text-align: center; margin-top: 40px;
+        }
+        .footer-text { font-size: 15px; color: #666; margin-bottom: 20px; }
+        .footer-badge {
+            display: inline-block; padding: 12px 30px; border-radius: 35px;
+            font-size: 15px; font-weight: 600; color: white;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--coral) 50%, var(--pink-dark) 100%);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+        }
+        .footer-version { font-size: 13px; color: #999; margin-top: 25px; }
+        @keyframes float { 0%,100%{transform: translateY(0) rotate(0deg);}50%{transform: translateY(-12px) rotate(2deg);} }
+        @keyframes shine { 0%,100%{opacity:0.6;}50%{opacity:1;} }
+        @keyframes sparkle { 0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.2);opacity:0.8;} }
+        .float-animation { animation: float 4s ease-in-out infinite; }
+        .float-animation-delay-1 { animation: float 4s ease-in-out infinite; animation-delay: 0.5s; }
+        .float-animation-delay-2 { animation: float 4s ease-in-out infinite; animation-delay: 1s; }
+        .shine-animation { animation: shine 2.5s ease-in-out infinite; }
+        .sparkle-animation { animation: sparkle 2s ease-in-out infinite; }
+        @media (max-width: 768px) {
+            .hero-title { font-size: 36px; }
+            .hero-subtitle { font-size: 16px; }
+            .hero-slogan { font-size: 20px; }
+            .nav-links { display: none; }
+            .showcase-container, .checklist-container { padding: 25px; }
+            .track-badge { padding: 8px 16px; font-size: 12px; }
+        }
+        .nav-links-mobile { display: none; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-links-mobile { display: flex; gap: 10px; }
+            .nav-links-mobile a {
+                text-decoration: none; color: #555; font-weight: 500;
+                padding: 8px 14px; border-radius: 20px;
+                background: rgba(255,255,255,0.7); font-size: 13px;
+            }
+        }
+        .workshop-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .workshop-modal {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white; border-radius: 25px;
+            width: 90%; max-width: 900px; max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translate(-50%, -30%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+        .workshop-header {
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
+            padding: 25px 30px; border-radius: 25px 25px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .workshop-title {
+            font-size: 24px; font-weight: bold; color: white;
+        }
+        .workshop-close {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            border: none; color: white; font-size: 24px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .workshop-close:hover { background: rgba(255,255,255,0.5); }
+        .workshop-content { padding: 30px; }
+        .workshop-tools {
+            display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;
+            padding-bottom: 25px; border-bottom: 2px dashed #DDD;
+        }
+        .tool-btn {
+            padding: 12px 24px; border-radius: 20px; border: 2px solid var(--gold);
+            background: white; color: #555; font-weight: 500;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .tool-btn:hover {
+            background: linear-gradient(135deg, rgba(255,183,197,0.3) 0%, rgba(135,206,235,0.3) 100%);
+            transform: translateY(-2px);
+        }
+        .tool-btn.active {
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
+            color: white; border-color: transparent;
+        }
+        .workshop-canvas {
+            background: #FFF8F0; border-radius: 20px;
+            min-height: 300px; position: relative;
+            border: 2px dashed var(--gold);
+            margin-bottom: 25px;
+        }
+        .shell-palette {
+            display: flex; flex-wrap: wrap; gap: 12px;
+        }
+        .shell-item {
+            width: 60px; height: 60px; border-radius: 12px;
+            cursor: move; transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+        .shell-item:hover {
+            transform: scale(1.15); border-color: var(--gold);
+            box-shadow: 0 6px 20px rgba(212,175,55,0.3);
+        }
+        .shell-circle { background: radial-gradient(circle at 30% 30%, #FFF, #FFE4E9, #FFB7C5); }
+        .shell-ellipse { background: radial-gradient(ellipse at 30% 30%, #FFF, #E0F4FF, #87CEEB); }
+        .shell-petal { background: radial-gradient(ellipse at 30% 30%, #FFF, #F5E6FF, #9B59B6); }
+        .shell-drop { background: radial-gradient(ellipse at 30% 30%, #FFF, #FFFACD, #FFD700); }
+        .shell-fish { background: linear-gradient(135deg, #FFFAF0, #FF7F50, #CD5C5C); }
+        .shell-bird { background: linear-gradient(135deg, #FFF8DC, #FFE4B5, #DEB887); }
+        .canvas-shell {
+            position: absolute; cursor: move;
+            transition: transform 0.1s;
+        }
+        .canvas-shell:hover {
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        .canvas-shell.selected {
+            outline: 3px solid var(--gold);
+            outline-offset: 2px;
+        }
+        .workshop-actions {
+            display: flex; gap: 15px; justify-content: center;
+            margin-top: 25px;
+        }
+        .action-btn {
+            padding: 14px 35px; border-radius: 25px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s; border: none;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, #FFB7C5 0%, #87CEEB 100%);
+            color: white;
+        }
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(135,206,235,0.5);
+        }
+        .action-btn.secondary {
+            background: #FFF; color: #555;
+            border: 2px solid var(--gold);
+        }
+        .action-btn.secondary:hover {
+            background: rgba(212,175,55,0.1);
+        }
+        .theme-info {
+            background: rgba(255,183,197,0.1);
+            padding: 20px; border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        .theme-info h4 {
+            color: #FF7F50; margin-bottom: 10px; font-size: 18px;
+        }
+        .theme-info p {
+            color: #666; font-size: 14px; line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <div class="logo-circle"></div>
+                <span class="logo-text">螺光工坊</span>
+            </div>
+            <div class="nav-links">
+                <a href="#hero">首页</a>
+                <a href="#examples">示例作品</a>
+                <a href="#wenchuang">文创预览</a>
+                <a href="#showcase">展示说明</a>
+                <a href="#checklist">提交清单</a>
+            </div>
+            <div class="nav-links-mobile">
+                <a href="#hero">🏠</a>
+                <a href="#examples">🎨</a>
+                <a href="#wenchuang">📱</a>
+                <a href="#showcase">📋</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero" class="hero">
+        <div class="track-badges">
+            <span class="track-badge">社会服务</span>
+            <span class="track-badge pink">社会公益</span>
+            <span class="track-badge blue">非遗美育</span>
+            <span class="track-badge green">AI创作</span>
+        </div>
+        <h1 class="hero-title">螺光工坊</h1>
+        <p class="hero-subtitle">AI非遗螺钿互动创作平台</p>
+        <p class="hero-slogan">让小学生从"看非遗"变成"做非遗"</p>
+        <a href="#examples" class="hero-btn">开始创作之旅</a>
+        
+        <div class="luodian-visual">
+            <svg viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="100" cy="380" rx="110" ry="38" fill="url(#leafGradient1)" opacity="0.8"/>
+                <ellipse cx="580" cy="400" rx="90" ry="32" fill="url(#leafGradient2)" opacity="0.7"/>
+                <ellipse cx="350" cy="420" rx="130" ry="45" fill="url(#leafGradient3)" opacity="0.6"/>
+                <ellipse cx="180" cy="350" rx="60" ry="25" fill="url(#leafGradient1)" opacity="0.7"/>
+                <ellipse cx="500" cy="360" rx="70" ry="28" fill="url(#leafGradient2)" opacity="0.6"/>
+                
+                <g transform="translate(220, 220)">
+                    <ellipse cx="0" cy="-50" rx="35" ry="55" fill="url(#petalGradient1)"/>
+                    <ellipse cx="-30" cy="-25" rx="32" ry="50" fill="url(#petalGradient2)"/>
+                    <ellipse cx="30" cy="-25" rx="32" ry="50" fill="url(#petalGradient3)"/>
+                    <ellipse cx="-15" cy="10" rx="28" ry="45" fill="url(#petalGradient4)"/>
+                    <ellipse cx="15" cy="10" rx="28" ry="45" fill="url(#petalGradient5)"/>
+                    <circle cx="0" cy="0" r="18" fill="url(#goldGradient)"/>
+                    <circle cx="0" cy="0" r="8" fill="url(#goldCenter)"/>
+                </g>
+                
+                <g transform="translate(450, 200)">
+                    <ellipse cx="0" cy="-45" rx="30" ry="50" fill="url(#petalGradient6)"/>
+                    <ellipse cx="-25" cy="-20" rx="28" ry="45" fill="url(#petalGradient7)"/>
+                    <ellipse cx="25" cy="-20" rx="28" ry="45" fill="url(#petalGradient8)"/>
+                    <circle cx="0" cy="0" r="15" fill="url(#goldGradient)"/>
+                </g>
+                
+                <g class="float-animation">
+                    <ellipse cx="320" cy="320" rx="55" ry="28" fill="url(#fishGradient1)"/>
+                    <ellipse cx="375" cy="320" rx="32" ry="20" fill="url(#fishGradient2)"/>
+                    <circle cx="392" cy="315" r="6" fill="#333"/>
+                    <path d="M402 320 Q418 314 413 326 Q418 332 402 320" fill="#333"/>
+                    <ellipse cx="305" cy="315" rx="18" ry="10" fill="url(#goldGradient)" opacity="0.9"/>
+                    <ellipse cx="290" cy="325" rx="12" ry="7" fill="url(#goldGradient)" opacity="0.7"/>
+                </g>
+                
+                <g class="float-animation-delay-1">
+                    <ellipse cx="480" cy="340" rx="50" ry="25" fill="url(#fishGradient3)"/>
+                    <ellipse cx="530" cy="340" rx="28" ry="18" fill="url(#fishGradient4)"/>
+                    <circle cx="545" cy="335" r="5" fill="#333"/>
+                    <ellipse cx="465" cy="335" rx="15" ry="8" fill="url(#goldGradient)" opacity="0.9"/>
+                </g>
+                
+                <g class="float-animation-delay-2">
+                    <ellipse cx="140" cy="120" rx="40" ry="22" fill="url(#birdGradient)"/>
+                    <circle cx="158" cy="115" r="9" fill="#333"/>
+                    <circle cx="160" cy="113" r="3" fill="#FFF"/>
+                    <path d="M172 115 L195 102 L175 112 Z" fill="#FF6B6B"/>
+                    <path d="M105 118 Q60 90 90 130" stroke="url(#birdGradient)" stroke-width="10" fill="none" stroke-linecap="round"/>
+                    <path d="M125 128 Q110 155 135 148" stroke="url(#birdGradient)" stroke-width="7" fill="none" stroke-linecap="round"/>
+                </g>
+                
+                <g transform="translate(580, 140)">
+                    <ellipse cx="0" cy="0" rx="45" ry="55" fill="url(#peonyGradient1)"/>
+                    <ellipse cx="-40" cy="-12" rx="40" ry="50" fill="url(#peonyGradient2)"/>
+                    <ellipse cx="40" cy="-12" rx="40" ry="50" fill="url(#peonyGradient3)"/>
+                    <ellipse cx="0" cy="40" rx="35" ry="45" fill="url(#peonyGradient4)"/>
+                    <circle cx="0" cy="5" r="22" fill="url(#goldGradient)"/>
+                </g>
+                
+                <circle cx="120" cy="370" r="8" fill="url(#waterDrop1)" class="shine-animation"/>
+                <circle cx="65" cy="385" r="5" fill="url(#waterDrop2)" class="shine-animation" style="animation-delay:0.8s;"/>
+                <circle cx="420" cy="410" r="7" fill="url(#waterDrop3)" class="shine-animation" style="animation-delay:1.5s;"/>
+                <circle cx="550" cy="395" r="6" fill="url(#waterDrop1)" class="shine-animation" style="animation-delay:2.2s;"/>
+                
+                <circle cx="60" cy="180" r="10" fill="url(#pearl1)" class="sparkle-animation"/>
+                <circle cx="620" cy="280" r="8" fill="url(#pearl2)" class="sparkle-animation" style="animation-delay:0.6s;"/>
+                <circle cx="200" cy="320" r="7" fill="url(#pearl3)" class="sparkle-animation" style="animation-delay:1.2s;"/>
+                <circle cx="480" cy="180" r="9" fill="url(#pearl4)" class="sparkle-animation" style="animation-delay:1.8s;"/>
+                <circle cx="350" cy="100" r="12" fill="url(#pearl5)" class="sparkle-animation" style="animation-delay:0.3s;"/>
+                
+                <defs>
+                    <linearGradient id="leafGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#20B2AA"/><stop offset="50%" stop-color="#3CB371"/><stop offset="100%" stop-color="#2E8B57"/>
+                    </linearGradient>
+                    <linearGradient id="leafGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#3CB371"/><stop offset="100%" stop-color="#2E8B57"/>
+                    </linearGradient>
+                    <linearGradient id="leafGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#20B2AA"/><stop offset="100%" stop-color="#3CB371"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFE4E9"/><stop offset="50%" stop-color="#FFB7C5"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#FFC0CB"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFC0CB"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient4" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#FFE4E9"/><stop offset="100%" stop-color="#FFB7C5"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFE4E9"/><stop offset="100%" stop-color="#FFB7C5"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient6" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFB6C1"/><stop offset="50%" stop-color="#FF1493"/><stop offset="100%" stop-color="#C71585"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient7" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#FF69B4"/><stop offset="100%" stop-color="#FF1493"/>
+                    </linearGradient>
+                    <linearGradient id="petalGradient8" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FF69B4"/><stop offset="100%" stop-color="#FF1493"/>
+                    </linearGradient>
+                    <linearGradient id="fishGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFFAF0"/><stop offset="30%" stop-color="#FF7F50"/><stop offset="70%" stop-color="#FF6347"/><stop offset="100%" stop-color="#CD5C5C"/>
+                    </linearGradient>
+                    <linearGradient id="fishGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FF7F50"/><stop offset="100%" stop-color="#CD5C5C"/>
+                    </linearGradient>
+                    <linearGradient id="fishGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#F5E6FF"/><stop offset="30%" stop-color="#9B59B6"/><stop offset="70%" stop-color="#8E44AD"/><stop offset="100%" stop-color="#6C3483"/>
+                    </linearGradient>
+                    <linearGradient id="fishGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#9B59B6"/><stop offset="100%" stop-color="#6C3483"/>
+                    </linearGradient>
+                    <linearGradient id="birdGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FFF8DC"/><stop offset="50%" stop-color="#FFE4B5"/><stop offset="100%" stop-color="#DEB887"/>
+                    </linearGradient>
+                    <radialGradient id="peonyGradient1" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFE4E9"/><stop offset="50%" stop-color="#FF69B4"/><stop offset="100%" stop-color="#FF1493"/>
+                    </radialGradient>
+                    <radialGradient id="peonyGradient2" cx="40%" cy="40%">
+                        <stop offset="0%" stop-color="#FFB6C1"/><stop offset="100%" stop-color="#FF1493"/>
+                    </radialGradient>
+                    <radialGradient id="peonyGradient3" cx="40%" cy="40%">
+                        <stop offset="0%" stop-color="#FFB6C1"/><stop offset="100%" stop-color="#FF1493"/>
+                    </radialGradient>
+                    <radialGradient id="peonyGradient4" cx="50%" cy="30%">
+                        <stop offset="0%" stop-color="#FFC0CB"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </radialGradient>
+                    <radialGradient id="goldGradient" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFF8DC"/><stop offset="40%" stop-color="#FFD700"/><stop offset="100%" stop-color="#D4AF37"/>
+                    </radialGradient>
+                    <radialGradient id="goldCenter" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#FFD700"/>
+                    </radialGradient>
+                    <radialGradient id="pearl1" cx="25%" cy="25%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="30%" stop-color="#FFE4E9"/><stop offset="70%" stop-color="#FFB7C5"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </radialGradient>
+                    <radialGradient id="pearl2" cx="25%" cy="25%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="30%" stop-color="#E0F4FF"/><stop offset="70%" stop-color="#87CEEB"/><stop offset="100%" stop-color="#5DADE2"/>
+                    </radialGradient>
+                    <radialGradient id="pearl3" cx="25%" cy="25%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="30%" stop-color="#FFFACD"/><stop offset="70%" stop-color="#FFD700"/><stop offset="100%" stop-color="#D4AF37"/>
+                    </radialGradient>
+                    <radialGradient id="pearl4" cx="25%" cy="25%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="30%" stop-color="#F5E6FF"/><stop offset="70%" stop-color="#9B59B6"/><stop offset="100%" stop-color="#6C3483"/>
+                    </radialGradient>
+                    <radialGradient id="pearl5" cx="25%" cy="25%">
+                        <stop offset="0%" stop-color="#FFF"/><stop offset="20%" stop-color="#FFE4E9"/><stop offset="40%" stop-color="#FFB7C5"/><stop offset="60%" stop-color="#87CEEB"/><stop offset="80%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FF69B4"/>
+                    </radialGradient>
+                    <radialGradient id="waterDrop1" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFF" stop-opacity="0.9"/><stop offset="50%" stop-color="#E0F4FF" stop-opacity="0.7"/><stop offset="100%" stop-color="#87CEEB" stop-opacity="0.5"/>
+                    </radialGradient>
+                    <radialGradient id="waterDrop2" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFF" stop-opacity="0.8"/><stop offset="100%" stop-color="#20B2AA" stop-opacity="0.4"/>
+                    </radialGradient>
+                    <radialGradient id="waterDrop3" cx="30%" cy="30%">
+                        <stop offset="0%" stop-color="#FFF" stop-opacity="0.9"/><stop offset="50%" stop-color="#B0E0E6" stop-opacity="0.6"/><stop offset="100%" stop-color="#5DADE2" stop-opacity="0.4"/>
+                    </radialGradient>
+                    <radialGradient id="shellShine" cx="20%" cy="20%">
+                        <stop offset="0%" stop-color="#FFF" stop-opacity="0.9"/><stop offset="20%" stop-color="#FFE4E9" stop-opacity="0.8"/><stop offset="50%" stop-color="#FFB7C5" stop-opacity="0.9"/><stop offset="80%" stop-color="#FF69B4" stop-opacity="0.8"/><stop offset="100%" stop-color="#C71585" stop-opacity="0.6"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+        </div>
+    </section>
+
+    <section id="examples" class="examples-section">
+        <h2 class="examples-title">🎨 内置螺钿示例作品</h2>
+        <div class="examples-grid">
+            <div class="example-card">
+                <div class="example-preview">
+                    <svg width="280" height="250" viewBox="0 0 280 250">
+                        <g transform="translate(140, 180)">
+                            <ellipse cx="0" cy="-20" rx="35" ry="45" fill="url(#peonyGradient1)" stroke="#D4AF37" stroke-width="1.5"/>
+                            <ellipse cx="-28" cy="-35" rx="30" ry="40" fill="url(#peonyGradient2)" stroke="#D4AF37" stroke-width="1.5"/>
+                            <ellipse cx="28" cy="-35" rx="30" ry="40" fill="url(#peonyGradient3)" stroke="#D4AF37" stroke-width="1.5"/>
+                            <ellipse cx="-15" cy="10" rx="25" ry="35" fill="url(#peonyGradient4)" stroke="#D4AF37" stroke-width="1.5"/>
+                            <ellipse cx="15" cy="10" rx="25" ry="35" fill="url(#peonyGradient4)" stroke="#D4AF37" stroke-width="1.5"/>
+                            <circle cx="0" cy="-15" r="15" fill="url(#goldGradient)"/>
+                        </g>
+                        <g transform="translate(80, 80)">
+                            <ellipse cx="0" cy="0" rx="30" ry="18" fill="url(#birdGradient)" stroke="#D4AF37" stroke-width="1"/>
+                            <circle cx="15" cy="-5" r="7" fill="#333"/>
+                            <circle cx="16" cy="-6" r="2" fill="#FFF"/>
+                            <path d="M25 -3 L42 -12 L28 0 Z" fill="#FF6B6B"/>
+                            <path d="M-25 0 Q-55 -25 -35 10" stroke="url(#birdGradient)" stroke-width="8" fill="none" stroke-linecap="round"/>
+                        </g>
+                        <circle cx="50" cy="150" r="6" fill="url(#pearl2)" class="sparkle-animation"/>
+                        <circle cx="230" cy="120" r="5" fill="url(#pearl3)" class="sparkle-animation" style="animation-delay:1s;"/>
+                    </svg>
+                </div>
+                <h3 class="example-title">🦜 玉鸟牡丹</h3>
+                <p class="example-desc">吉祥富贵的象征，玉鸟栖息于牡丹花丛，寓意花开富贵、鸟语花香。</p>
+                <a href="#" class="example-btn" data-theme="bird-peony">用这个灵感去创作</a>
+            </div>
+            
+            <div class="example-card">
+                <div class="example-preview">
+                    <svg width="280" height="250" viewBox="0 0 280 250">
+                        <ellipse cx="70" cy="200" rx="50" ry="20" fill="url(#leafGradient1)" opacity="0.7"/>
+                        <ellipse cx="200" cy="210" rx="45" ry="18" fill="url(#leafGradient2)" opacity="0.6"/>
+                        <ellipse cx="140" cy="220" rx="60" ry="22" fill="url(#leafGradient3)" opacity="0.5"/>
+                        <g transform="translate(100, 130)">
+                            <ellipse cx="0" cy="-35" rx="22" ry="35" fill="url(#petalGradient1)" stroke="#D4AF37" stroke-width="1"/>
+                            <ellipse cx="-18" cy="-15" rx="20" ry="30" fill="url(#petalGradient2)" stroke="#D4AF37" stroke-width="1"/>
+                            <ellipse cx="18" cy="-15" rx="20" ry="30" fill="url(#petalGradient3)" stroke="#D4AF37" stroke-width="1"/>
+                            <circle cx="0" cy="-5" r="10" fill="url(#goldGradient)"/>
+                        </g>
+                        <g transform="translate(160, 180)">
+                            <ellipse cx="0" cy="0" rx="40" ry="20" fill="url(#fishGradient1)" stroke="#D4AF37" stroke-width="1"/>
+                            <ellipse cx="42" cy="0" rx="22" ry="14" fill="url(#fishGradient2)" stroke="#D4AF37" stroke-width="1"/>
+                            <circle cx="52" cy="-5" r="4" fill="#333"/>
+                            <ellipse cx="-15" cy="-5" rx="12" ry="6" fill="url(#goldGradient)" opacity="0.8"/>
+                        </g>
+                        <circle cx="60" cy="195" r="5" fill="url(#waterDrop1)" class="shine-animation"/>
+                        <circle cx="210" cy="205" r="4" fill="url(#waterDrop2)" class="shine-animation" style="animation-delay:1.2s;"/>
+                    </svg>
+                </div>
+                <h3 class="example-title">🐟 荷花锦鲤</h3>
+                <p class="example-desc">锦鲤在荷塘中游弋，寓意年年有余、吉祥如意，充满生机与活力。</p>
+                <a href="#" class="example-btn" data-theme="lotus-fish">用这个灵感去创作</a>
+            </div>
+            
+            <div class="example-card">
+                <div class="example-preview">
+                    <svg width="280" height="250" viewBox="0 0 280 250">
+                        <ellipse cx="140" cy="180" rx="80" ry="30" fill="url(#leafGradient1)" opacity="0.8"/>
+                        <ellipse cx="60" cy="150" rx="55" ry="22" fill="url(#leafGradient2)" opacity="0.7"/>
+                        <ellipse cx="220" cy="160" rx="50" ry="20" fill="url(#leafGradient3)" opacity="0.6"/>
+                        <path d="M140 150 L140 210" stroke="#1E90FF" stroke-width="2" opacity="0.4"/>
+                        <path d="M140 165 Q100 155 80 170" stroke="#1E90FF" stroke-width="1.5" opacity="0.3"/>
+                        <path d="M140 175 Q180 165 200 180" stroke="#1E90FF" stroke-width="1.5" opacity="0.3"/>
+                        <circle cx="130" cy="170" r="12" fill="url(#waterDrop1)" class="shine-animation"/>
+                        <circle cx="155" cy="185" r="8" fill="url(#waterDrop2)" class="shine-animation" style="animation-delay:0.8s;"/>
+                        <circle cx="75" cy="145" r="6" fill="url(#waterDrop3)" class="shine-animation" style="animation-delay:1.5s;"/>
+                        <circle cx="230" cy="155" r="5" fill="url(#waterDrop1)" class="shine-animation" style="animation-delay:2s;"/>
+                        <circle cx="40" cy="80" r="7" fill="url(#pearl1)" class="sparkle-animation"/>
+                        <circle cx="240" cy="100" r="6" fill="url(#pearl4)" class="sparkle-animation" style="animation-delay:1.2s;"/>
+                    </svg>
+                </div>
+                <h3 class="example-title">💧 荷叶水珠</h3>
+                <p class="example-desc">晶莹剔透的水珠在翠绿荷叶上滚动，展现自然之美与生命的灵动。</p>
+                <a href="#" class="example-btn" data-theme="leaf-drop">用这个灵感去创作</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="wenchuang" class="wenchuang-section">
+        <h2 class="wenchuang-title">🎁 文创应用预览</h2>
+        <div class="wenchuang-grid">
+            <div class="wenchuang-card">
+                <div class="wenchuang-preview">
+                    <svg width="100" height="150" viewBox="0 0 100 150">
+                        <rect x="5" y="5" width="90" height="140" fill="#FFF" stroke="#D4AF37" stroke-width="2" rx="5"/>
+                        <polygon points="95,5 110,25 95,45" fill="#FFB7C5" stroke="#D4AF37" stroke-width="1.5"/>
+                        <circle cx="50" cy="50" r="20" fill="url(#pearl1)"/>
+                        <ellipse cx="50" cy="90" rx="15" ry="22" fill="url(#petalGradient1)"/>
+                        <circle cx="50" cy="95" r="6" fill="url(#goldGradient)"/>
+                        <rect x="25" y="120" width="50" height="3" fill="#D4AF37"/>
+                    </svg>
+                </div>
+                <h3 class="wenchuang-name">📖 书签</h3>
+                <p class="wenchuang-desc">适合研学纪念品，让阅读更有文化气息</p>
+            </div>
+
+            <div class="wenchuang-card">
+                <div class="wenchuang-preview">
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                        <ellipse cx="70" cy="60" rx="60" ry="50" fill="#FFF" stroke="#D4AF37" stroke-width="2"/>
+                        <circle cx="70" cy="60" r="35" fill="url(#shellShine)" opacity="0.6"/>
+                        <ellipse cx="70" cy="60" rx="25" ry="35" fill="url(#petalGradient6)" opacity="0.8"/>
+                        <circle cx="70" cy="60" r="8" fill="url(#goldGradient)"/>
+                        <line x1="70" y1="110" x2="70" y2="135" stroke="#D4AF37" stroke-width="3"/>
+                        <ellipse cx="70" cy="135" rx="10" ry="3" fill="#D4AF37"/>
+                    </svg>
+                </div>
+                <h3 class="wenchuang-name">🪭 团扇</h3>
+                <p class="wenchuang-desc">适合非遗馆衍生品，传承东方雅致生活</p>
+            </div>
+
+            <div class="wenchuang-card">
+                <div class="wenchuang-preview">
+                    <svg width="100" height="180" viewBox="0 0 100 180">
+                        <rect x="8" y="5" width="84" height="170" rx="15" fill="#FFF" stroke="#D4AF37" stroke-width="1.5"/>
+                        <rect x="30" y="10" width="40" height="8" rx="4" fill="#333"/>
+                        <rect x="15" y="30" width="70" height="110" rx="5" fill="#FFF8F0"/>
+                        <circle cx="50" cy="80" r="25" fill="url(#shellShine)" opacity="0.7"/>
+                        <ellipse cx="50" cy="80" rx="18" ry="25" fill="url(#petalGradient1)" opacity="0.85"/>
+                        <circle cx="50" cy="85" r="7" fill="url(#goldGradient)"/>
+                        <rect x="35" y="150" width="30" height="4" rx="2" fill="#DDD"/>
+                    </svg>
+                </div>
+                <h3 class="wenchuang-name">📱 手机壳</h3>
+                <p class="wenchuang-desc">适合时尚配饰，让传统文化融入日常</p>
+            </div>
+
+            <div class="wenchuang-card">
+                <div class="wenchuang-preview">
+                    <svg width="120" height="100" viewBox="0 0 120 100">
+                        <rect x="10" y="30" width="100" height="65" rx="5" fill="#FFF8DC" stroke="#D4AF37" stroke-width="2"/>
+                        <rect x="10" y="30" width="100" height="35" rx="5" fill="url(#shellShine)" opacity="0.4"/>
+                        <circle cx="60" cy="50" r="18" fill="url(#pearl5)"/>
+                        <ellipse cx="60" cy="50" rx="12" ry="16" fill="url(#petalGradient6)" opacity="0.8"/>
+                        <circle cx="60" cy="52" r="5" fill="url(#goldGradient)"/>
+                        <rect x="35" y="75" width="50" height="20" fill="#DEB887" opacity="0.5" rx="3"/>
+                    </svg>
+                </div>
+                <h3 class="wenchuang-name">💍 首饰盒</h3>
+                <p class="wenchuang-desc">适合礼品收藏，传递非遗工艺之美</p>
+            </div>
+
+            <div class="wenchuang-card">
+                <div class="wenchuang-preview">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <circle cx="45" cy="45" r="40" fill="#FFF" stroke="#D4AF37" stroke-width="2"/>
+                        <circle cx="45" cy="45" r="30" fill="url(#shellShine)" opacity="0.5"/>
+                        <ellipse cx="45" cy="45" rx="15" ry="20" fill="url(#petalGradient1)" opacity="0.85"/>
+                        <circle cx="45" cy="48" r="6" fill="url(#goldGradient)"/>
+                        <rect x="35" y="82" width="20" height="5" fill="#DDD" rx="2"/>
+                    </svg>
+                </div>
+                <h3 class="wenchuang-name">🧲 冰箱贴</h3>
+                <p class="wenchuang-desc">适合家居装饰，让非遗走进生活</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="showcase" class="showcase-section">
+        <div class="showcase-container">
+            <h2 class="showcase-title">📋 初赛展示说明</h2>
+            
+            <h3 class="showcase-section-title">🎯 项目解决的问题</h3>
+            <div class="showcase-content">
+                传统非遗传播多以图文、展览和讲解为主，小学生看得见但做不了，很难真正理解材料、工艺和美感。螺光工坊通过数字化手段，将传统螺钿工艺转化为可互动的创作体验，让孩子们从"看非遗"变成"做非遗"。
+            </div>
+
+            <h3 class="showcase-section-title">👥 目标用户</h3>
+            <div class="showcase-content">
+                小学生、青少年学生、美育课程教师、非遗馆观众、文旅研学用户、亲子家庭。
+            </div>
+
+            <h3 class="showcase-section-title">✨ 核心功能</h3>
+            <ul class="showcase-list">
+                <li>AI非遗导览 - 语音讲解螺钿历史与工艺</li>
+                <li>语音输入 - 支持语音交互创作</li>
+                <li>螺钿纹样生成 - AI辅助生成创作灵感</li>
+                <li>虚拟螺片镶嵌 - 拖拽创作，体验螺钿工艺</li>
+                <li>螺片拖拽和旋转 - 自由调整螺片位置和角度</li>
+                <li>AI自动镶嵌 - 智能构图建议</li>
+                <li>作品故事生成 - 为作品赋予文化内涵</li>
+                <li>文创应用预览 - 将作品应用到各类文创产品</li>
+            </ul>
+
+            <h3 class="showcase-section-title">💡 创新亮点</h3>
+            <ul class="showcase-list">
+                <li>从"看非遗"变成"做非遗"，真正实现沉浸式体验</li>
+                <li>面向小学生，使用门槛低，趣味性强</li>
+                <li>螺片支持多形状、多颜色、拖拽、旋转</li>
+                <li>自动镶嵌具有构图感，降低创作难度</li>
+                <li>从学习到创作再到文创预览形成完整闭环</li>
+            </ul>
+
+            <h3 class="showcase-section-title">🏛️ 社会价值</h3>
+            <div class="showcase-content">
+                降低青少年接触非遗的门槛，让传统螺钿工艺以数字化方式进入课堂、展馆和研学活动，促进非遗文化的传承与创新。
+            </div>
+
+            <h3 class="showcase-section-title">🚀 后续计划</h3>
+            <ul class="showcase-list">
+                <li>接入真实大模型，实现自然问答</li>
+                <li>支持上传参考图，自动生成螺钿分区</li>
+                <li>增加更多模板：鸟、牡丹、荷花、锦鲤、荷叶、山水、生肖</li>
+                <li>增加儿童引导角色，提供更友好的交互体验</li>
+                <li>支持作品导出为图片或海报</li>
+                <li>支持学校美育课程包</li>
+                <li>支持非遗馆大屏互动和扫码带走作品</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="checklist" class="checklist-section">
+        <div class="checklist-container">
+            <h2 class="checklist-title">📦 初赛提交材料准备清单</h2>
+            <ul class="checklist">
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">可体验 Demo ZIP 文件</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">Demo 首页截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">AI 导览截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">创作工坊截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">螺片拖拽旋转截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">AI 自动镶嵌截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">作品故事生成截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">文创预览截图</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">不少于 3 个 TRAE Session ID</span>
+                </li>
+                <li class="checklist-item">
+                    <div class="checklist-checkbox"></div>
+                    <span class="checklist-text">已通过审核的报名帖链接</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p class="footer-text">螺光工坊 - 让非遗文化触手可及</p>
+        <span class="footer-badge">TRAE AI 创造力大赛参赛项目</span>
+        <p class="footer-version">版本：初赛提交版 v1.0</p>
+    </footer>
+
+    <!-- 创作工坊模态框 -->
+    <div id="workshopOverlay" class="workshop-overlay">
+        <div class="workshop-modal">
+            <div class="workshop-header">
+                <h2 class="workshop-title">🎨 螺钿创作工坊</h2>
+                <button class="workshop-close" onclick="closeWorkshop()">×</button>
+            </div>
+            <div class="workshop-content">
+                <div id="themeInfo" class="theme-info">
+                    <h4>🌺 当前主题：</h4>
+                    <p>选择下方的螺片，拖拽到画布上进行创作。点击画布上的螺片可以选中和旋转。</p>
+                </div>
+                
+                <div class="workshop-tools">
+                    <button class="tool-btn active" data-tool="select">✋ 选择</button>
+                    <button class="tool-btn" data-tool="rotate">🔄 旋转</button>
+                    <button class="tool-btn" data-tool="delete">🗑️ 删除</button>
+                    <button class="tool-btn" data-tool="ai-fill">✨ AI自动镶嵌</button>
+                </div>
+
+                <div id="workshopCanvas" class="workshop-canvas">
+                    <div class="canvas-shell" style="width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #FFF, #FFE4E9, #FFB7C5); top: 50px; left: 100px;"></div>
+                    <div class="canvas-shell" style="width: 40px; height: 60px; border-radius: 50%; background: radial-gradient(ellipse at 30% 30%, #FFF, #E0F4FF, #87CEEB); top: 80px; left: 200px;"></div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <p style="font-weight: bold; color: #555; margin-bottom: 12px;">🎨 螺片选择（拖拽到画布）</p>
+                    <div class="shell-palette">
+                        <div class="shell-item shell-circle" draggable="true"></div>
+                        <div class="shell-item shell-ellipse" draggable="true"></div>
+                        <div class="shell-item shell-petal" draggable="true"></div>
+                        <div class="shell-item shell-drop" draggable="true"></div>
+                        <div class="shell-item shell-fish" draggable="true"></div>
+                        <div class="shell-item shell-bird" draggable="true"></div>
+                    </div>
+                </div>
+
+                <div class="workshop-actions">
+                    <button class="action-btn primary" onclick="generateStory()">📖 生成作品故事</button>
+                    <button class="action-btn secondary" onclick="clearCanvas()">🗑️ 清空画布</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            navbar.style.background = window.scrollY > 50 
+                ? 'linear-gradient(90deg, rgba(255,183,197,0.95) 0%, rgba(135,206,235,0.95) 50%, rgba(255,183,197,0.95) 100%)'
+                : 'linear-gradient(90deg, rgba(255,183,197,0.9) 0%, rgba(135,206,235,0.9) 50%, rgba(255,183,197,0.9) 100%)';
+        });
+
+        // 复选框交互
+        document.querySelectorAll('.checklist-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // 主题数据
+        const themeData = {
+            'bird-peony': {
+                name: '🦜 玉鸟牡丹',
+                desc: '吉祥富贵的象征，玉鸟栖息于牡丹花丛，寓意花开富贵、鸟语花香。建议使用粉色、金色螺片创作。'
+            },
+            'lotus-fish': {
+                name: '🐟 荷花锦鲤',
+                desc: '锦鲤在荷塘中游弋，寓意年年有余、吉祥如意，充满生机与活力。建议使用红色、青色螺片创作。'
+            },
+            'leaf-drop': {
+                name: '💧 荷叶水珠',
+                desc: '晶莹剔透的水珠在翠绿荷叶上滚动，展现自然之美与生命的灵动。建议使用绿色、透明感螺片创作。'
+            }
+        };
+
+        // 打开创作工坊
+        function openWorkshop(theme) {
+            const overlay = document.getElementById('workshopOverlay');
+            const themeInfo = document.getElementById('themeInfo');
+            const themeDataItem = themeData[theme] || { name: '自由创作', desc: '发挥你的想象力，创作独一无二的螺钿作品！' };
+            
+            themeInfo.innerHTML = `
+                <h4>${themeDataItem.name}</h4>
+                <p>${themeDataItem.desc}</p>
+            `;
+            
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭创作工坊
+        function closeWorkshop() {
+            const overlay = document.getElementById('workshopOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // 示例作品按钮点击效果
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const theme = this.dataset.theme;
+                openWorkshop(theme);
+            });
+        });
+
+        // 点击遮罩关闭
+        document.getElementById('workshopOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeWorkshop();
+            }
+        });
+
+        // 拖拽功能
+        let draggedItem = null;
+        let selectedShell = null;
+        let currentTool = 'select';
+        let rotation = 0;
+
+        // 工具切换
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tool-btn').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentTool = this.dataset.tool;
+            });
+        });
+
+        // 拖拽开始
+        document.querySelectorAll('.shell-item').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+        });
+
+        // 画布拖拽悬停
+        document.getElementById('workshopCanvas').addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+
+        // 画布放置
+        document.getElementById('workshopCanvas').addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (draggedItem) {
+                const canvas = document.getElementById('workshopCanvas');
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const newShell = draggedItem.cloneNode(true);
+                newShell.classList.remove('shell-item');
+                newShell.classList.add('canvas-shell');
+                newShell.style.position = 'absolute';
+                newShell.style.left = (x - 30) + 'px';
+                newShell.style.top = (y - 30) + 'px';
+                newShell.style.cursor = 'move';
+                
+                // 添加点击事件
+                newShell.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (currentTool === 'select') {
+                        document.querySelectorAll('.canvas-shell').forEach(s => s.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedShell = this;
+                    } else if (currentTool === 'rotate') {
+                        rotation += 45;
+                        this.style.transform = `rotate(${rotation}deg)`;
+                    } else if (currentTool === 'delete') {
+                        this.remove();
+                    }
+                });
+                
+                canvas.appendChild(newShell);
+                draggedItem = null;
+            }
+        });
+
+        // 画布点击取消选择
+        document.getElementById('workshopCanvas').addEventListener('click', function() {
+            if (currentTool === 'select') {
+                document.querySelectorAll('.canvas-shell').forEach(s => s.classList.remove('selected'));
+                selectedShell = null;
+            }
+        });
+
+        // 生成作品故事
+        function generateStory() {
+            const stories = [
+                '这幅螺钿作品展现了一幅美丽的花鸟画卷。金色的阳光洒落在五彩斑斓的螺片上，折射出迷人的光芒，仿佛能闻到花香、听到鸟鸣。每一片螺片都承载着匠人的心血，传承着千年的工艺智慧。',
+                '清澈的荷塘中，锦鲤自在地游弋。粉色的荷花亭亭玉立，翠绿的荷叶随风摇曳。这不仅是一件艺术品，更是对美好生活的向往与祝福，愿年年有余、吉祥如意。',
+                '晶莹的水珠在荷叶上滚动，折射出七彩的光芒。这是大自然赐予我们的礼物，也是螺钿工艺独特魅力的展现。每一滴水珠都诉说着关于美的故事。',
+                '牡丹花开，富贵满堂。玉鸟欢唱，吉祥如意。这幅作品将传统吉祥图案与现代审美完美融合，展现了非遗文化的独特魅力。',
+                '螺钿工艺，千年传承。每一片螺片都经过精心挑选和打磨，镶嵌出精美绝伦的图案。这不仅是技艺的传承，更是文化的延续。'
+            ];
+            
+            const randomStory = stories[Math.floor(Math.random() * stories.length)];
+            alert('🎨 作品故事生成成功！\n\n' + randomStory);
+        }
+
+        // 清空画布
+        function clearCanvas() {
+            const canvas = document.getElementById('workshopCanvas');
+            while (canvas.firstChild) {
+                canvas.removeChild(canvas.firstChild);
+            }
+        }
+
+        // AI自动镶嵌
+        const aiFillBtn = document.querySelector('.tool-btn[data-tool="ai-fill"]');
+        aiFillBtn.addEventListener('click', function() {
+            const canvas = document.getElementById('workshopCanvas');
+            
+            // 生成一些随机螺片
+            const positions = [
+                { x: 80, y: 80, type: 'circle' },
+                { x: 200, y: 60, type: 'ellipse' },
+                { x: 150, y: 150, type: 'petal' },
+                { x: 250, y: 120, type: 'drop' },
+                { x: 100, y: 200, type: 'circle' },
+                { x: 220, y: 180, type: 'petal' },
+            ];
+            
+            positions.forEach(pos => {
+                const shell = document.createElement('div');
+                shell.classList.add('canvas-shell');
+                shell.classList.add('shell-' + pos.type);
+                shell.style.position = 'absolute';
+                shell.style.left = pos.x + 'px';
+                shell.style.top = pos.y + 'px';
+                shell.style.cursor = 'move';
+                
+                shell.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (currentTool === 'select') {
+                        document.querySelectorAll('.canvas-shell').forEach(s => s.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedShell = this;
+                    } else if (currentTool === 'rotate') {
+                        rotation += 45;
+                        this.style.transform = `rotate(${rotation}deg)`;
+                    } else if (currentTool === 'delete') {
+                        this.remove();
+                    }
+                });
+                
+                canvas.appendChild(shell);
+            });
+            
+            alert('✨ AI自动镶嵌完成！已为您生成一幅精美的螺钿图案。');
+        });
+    </script>
+</body>
+</html>
